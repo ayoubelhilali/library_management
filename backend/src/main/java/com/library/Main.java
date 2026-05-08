@@ -1,23 +1,29 @@
 package com.library;
 
-import com.library.dao.BookDAO;
-import com.library.model.Book;
-import com.library.patterns.singleton.DBConnection;
+import com.library.server.LibraryServer;
 
 public class Main {
+
     public static void main(String[] args) {
-        DBConnection db = DBConnection.getInstance();
-        BookDAO dao = new BookDAO();
-        dao.getAllBooks().forEach(book ->
-                System.out.println(book.getTitle())
-        );
-        Book book=dao.getBookById(1);
-        book.setTitle("clean code updated");
-        dao.updateBook(book);
-        System.out.println(book.getId()+"=> "+book.getTitle());
-        dao.searchBooks("Software")
-                .forEach(elem ->
-                        System.out.println(elem.getTitle())
-                );
+
+        try {
+
+            LibraryServer.start();
+            System.out.println("=================================");
+            System.out.println("✅ Library Server Started");
+            System.out.println("🌐 http://localhost:8080");
+            System.out.println("=================================");
+
+            System.out.println("📚 Books API:");
+            System.out.println("GET  -> http://localhost:8080/api/books");
+
+            System.out.println("\n📖 Borrows API:");
+            System.out.println("GET  -> http://localhost:8080/api/borrows");
+            System.out.println("POST -> http://localhost:8080/api/borrow");
+            System.out.println("POST -> http://localhost:8080/api/return");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
