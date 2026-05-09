@@ -4,40 +4,22 @@ import com.library.model.enums.MemberType;
 
 public class TeacherMember extends Member {
 
-    private String department;
-    private String employeeNumber;
 
+
+
+    public TeacherMember(){}
 
     public TeacherMember(
             int id,
             String name,
             String email,
-            String phone,
-            String department,
-            String employeeNumber
+            String phone
+  
     ) {
         super(id, name, email, phone);
-        this.department = department;
-        this.employeeNumber = employeeNumber;
+
     }
 
-
-
-    public String getDepartment() {
-        return department;
-    }
-
-    public String getEmployeeNumber() {
-        return employeeNumber;
-    }
-
-    public void setDepartment(String department) {
-        this.department = department;
-    }
-
-    public void setEmployeeNumber(String employeeNumber) {
-        this.employeeNumber = employeeNumber;
-    }
 
 
     @Override
@@ -49,9 +31,6 @@ public class TeacherMember extends Member {
     public MemberType getMemberType() {
         return MemberType.TEACHER ;
     }
-
-
-    
 
     
     

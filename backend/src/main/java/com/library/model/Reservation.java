@@ -13,5 +13,10 @@ public class Reservation {
     private ReservationStatus status ;
 
 
+
+
+    
+
+
     
 }

@@ -3,44 +3,40 @@ package com.library.patterns.factory ;
 import com.library.model.Member;
 import com.library.model.StudentMember;
 import com.library.model.TeacherMember;
+import com.library.model.enums.MemberType;
 
 public class MemberFactory {
 
-    public static Member createStudentMember(
+    public static Member createMember(
             int id,
             String name,
             String email,
-            String phone,
-            String university,
-            String studentCardNumber
+            String phone ,
+            MemberType type
     ) {
 
-        return new StudentMember(
-                id,
-                name,
-                email,
-                phone,
-                university,
-                studentCardNumber
-        );
+
+        if(type == MemberType.STUDENT){
+
+                return new StudentMember(
+                        id,
+                        name,
+                        email,
+                        phone
+                );
+
+        }else{
+
+                return new TeacherMember( 
+                        id,
+                        name,
+                        email,
+                        phone
+                );
+
+        }
+
     }
 
-    public static Member createTeacherMember(
-            int id,
-            String name,
-            String email,
-            String phone,
-            String department,
-            String employeeNumber
-    ) {
 
-        return new TeacherMember(
-                id,
-                name,
-                email,
-                phone,
-                department,
-                employeeNumber
-        );
-    }
 }
