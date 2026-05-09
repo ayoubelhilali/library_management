@@ -4,6 +4,9 @@ import com.library.dao.BookDAO;
 import com.library.dao.BorrowDAO;
 import com.library.model.Book;
 import com.library.model.Borrow;
+import com.library.patterns.command.Command;
+import com.library.patterns.state.BookState;
+import com.library.patterns.state.BookStateFactory;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -40,15 +43,9 @@ public class BorrowService {
         if (bookId <= 0 || memberId <= 0) {
             throw new IllegalArgumentException("Invalid book or member id");
         }
-
         Book book = bookDAO.getBookById(bookId);
-
         if (book == null) {
             throw new IllegalArgumentException("Book not found");
-        }
-
-        if (!"AVAILABLE".equalsIgnoreCase(book.getStatus())) {
-            throw new IllegalArgumentException("Book is not available");
         }
 
         Borrow activeBorrow = borrowDAO.getActiveBorrowByBookId(bookId);
@@ -56,6 +53,9 @@ public class BorrowService {
         if (activeBorrow != null) {
             throw new IllegalArgumentException("Book is already borrowed");
         }
+
+        BookState state = BookStateFactory.getState(book.getStatus());
+        state.borrow(book);
 
         Borrow borrow = new Borrow();
         borrow.setBookID(bookId);
@@ -67,7 +67,6 @@ public class BorrowService {
         boolean created = borrowDAO.createBorrow(borrow);
 
         if (created) {
-            book.setStatus("BORROWED");
             bookDAO.updateBook(book);
         }
 
@@ -92,7 +91,8 @@ public class BorrowService {
         boolean returned = borrowDAO.returnBook(borrowId, LocalDate.now());
         if (returned) {
             Book book = bookDAO.getBookById(borrow.getBookID());
-            book.setStatus("AVAILABLE");
+            BookState state = BookStateFactory.getState(book.getStatus());
+            state.returnBook(book);
             bookDAO.updateBook(book);
         }
         return returned;

@@ -1,5 +1,6 @@
 package com.library.dao;
 import com.library.model.Book;
+import com.library.patterns.builder.BookBuilder;
 import com.library.patterns.singleton.DBConnection;
 
 import java.sql.*;
@@ -27,7 +28,7 @@ public class BookDAO {
         return books;
     }
     public boolean addBook(Book book){
-        String query="INSERT INTO books VALUES(?,?,?,?,?)";
+        String query="INSERT INTO books(title,author,category,isbn,status) VALUES(?,?,?,?,?)";
         try(PreparedStatement ps=connection.prepareStatement(query)){
             ps.setString(1,book.getTitle());
             ps.setString(2,book.getAuthor());
@@ -61,14 +62,7 @@ public class BookDAO {
             ps.setInt(1,id);
             ResultSet rs=ps.executeQuery();
             if (rs.next()){
-                Book book=new Book();
-                book.setId(rs.getInt("id"));
-                book.setTitle(rs.getString("title"));
-                book.setAuthor(rs.getString("author"));
-                book.setCategory(rs.getString("category"));
-                book.setIsbn(rs.getString("isbn"));
-                book.setStatus(rs.getString("status"));
-                return book;
+                return buildBook(rs);
             }
 
         }catch (SQLException e) {
@@ -76,7 +70,19 @@ public class BookDAO {
         }
         return null;
     }
-    public Boolean updateBook(Book book){
+
+    private Book buildBook(ResultSet rs) throws SQLException {
+        BookBuilder book=new BookBuilder();
+        book.id(rs.getInt("id"));
+        book.title(rs.getString("title"));
+        book.author(rs.getString("author"));
+        book.category(rs.getString("category"));
+        book.isbn(rs.getString("isbn"));
+        book.status(rs.getString("status"));
+        return book.build();
+    }
+
+    public boolean updateBook(Book book){
         String query ="UPDATE books SET title=?,author=?,category=?,isbn=?,status=? WHERE id=?";
         try(PreparedStatement ps=connection.prepareStatement(query)){
             ps.setString(1,book.getTitle());
@@ -121,14 +127,7 @@ public class BookDAO {
 
     private void fetchResult(List<Book> books, ResultSet rs) throws SQLException {
         while (rs.next()) {
-            Book book = new Book();
-            book.setId(rs.getInt("id"));
-            book.setTitle(rs.getString("title"));
-            book.setAuthor(rs.getString("author"));
-            book.setCategory(rs.getString("category"));
-            book.setIsbn(rs.getString("isbn"));
-            book.setStatus(rs.getString("status"));
-            books.add(book);
+            books.add(buildBook(rs));
         }
     }
 }

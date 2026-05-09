@@ -2,6 +2,7 @@ package com.library.service;
 
 import com.library.dao.BookDAO;
 import com.library.model.Book;
+import com.library.patterns.prototype.BookPrototype;
 
 import java.util.List;
 
@@ -112,5 +113,23 @@ public class BookService {
         if (book.getAuthor().length() > 100) {
             throw new IllegalArgumentException("Author name too long");
         }
+    }
+    public Book duplicateBook(int id) {
+        Book originalBook = bookDAO.getBookById(id);
+        if (originalBook == null) {
+            throw new IllegalArgumentException("Book not found");
+        }
+        BookPrototype prototype =
+                new BookPrototype(originalBook);
+
+        Book clonedBook = prototype.clone();
+        // Important
+        clonedBook.setId(0);
+        // ISBN must be unique
+        clonedBook.setIsbn("");
+        clonedBook.setTitle(
+                clonedBook.getTitle() + " (Copy)"
+        );
+        return clonedBook;
     }
 }

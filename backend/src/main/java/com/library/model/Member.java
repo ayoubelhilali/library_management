@@ -3,12 +3,10 @@ package com.library.model ;
 import com.library.model.enums.MemberType;
 
 public abstract class Member {
-
     private int id ;
     private String name ;
     private String email ;
     private String phone ;
-
 
     public Member(int id, String name, String email, String phone) {
         this.id = id;

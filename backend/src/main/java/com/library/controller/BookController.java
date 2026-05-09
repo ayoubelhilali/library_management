@@ -20,7 +20,10 @@ public class BookController implements HttpHandler {
 
         try {
             String method = exchange.getRequestMethod();
-
+            if ("OPTIONS".equalsIgnoreCase(method)) {
+                sendResponse(exchange, 204, "");
+                return;
+            }
             switch (method) {
                 case "GET" -> handleGet(exchange);
                 case "POST" -> handlePost(exchange);
@@ -67,29 +70,62 @@ public class BookController implements HttpHandler {
 
     private void handlePost(HttpExchange exchange) throws IOException {
 
-        String body = readBody(exchange);
-        Book book = gson.fromJson(body, Book.class);
+        String path = exchange.getRequestURI().getPath();
 
-        boolean created = bookService.addBook(book);
+        // DUPLICATE BOOK
+        if (path.equals("/api/books/duplicate")) {
+            String query = exchange.getRequestURI().getQuery();
+            if (query == null || !query.startsWith("id=")) {
+                sendResponse(exchange, 400,
+                        "{\"error\":\"Book id is required\"}");
+                return;
+            }
+            int id = Integer.parseInt(query.substring(3));
+            Book duplicatedBook = bookService.duplicateBook(id);
+            sendResponse(exchange, 200,
+                    gson.toJson(duplicatedBook));
 
-        if (created) {
-            sendResponse(exchange, 201, "{\"message\":\"Book added successfully\"}");
-        } else {
-            sendResponse(exchange, 400, "{\"error\":\"Book not added\"}");
+            return;
+        }
+        // NORMAL ADD BOOK
+        try {
+            String body = readBody(exchange);
+            if (body == null || body.isBlank()) {
+                sendResponse(exchange, 400,
+                        "{\"error\":\"Body is empty\"}");
+                return;
+            }
+            Book book = gson.fromJson(body, Book.class);
+            boolean created = bookService.addBook(book);
+            if (created) {
+                sendResponse(exchange, 201,
+                        "{\"message\":\"Book added successfully\"}");
+            } else {
+                sendResponse(exchange, 400,
+                        "{\"error\":\"Book not added\"}");
+            }
+        } catch (com.google.gson.JsonSyntaxException e) {
+
+            sendResponse(exchange, 400,
+                    "{\"error\":\"Invalid JSON\"}");
         }
     }
 
     private void handlePut(HttpExchange exchange) throws IOException {
 
-        String body = readBody(exchange);
-        Book book = gson.fromJson(body, Book.class);
+        try{
+            String body = readBody(exchange);
+            Book book = gson.fromJson(body, Book.class);
 
-        boolean updated = bookService.updateBook(book);
+            boolean updated = bookService.updateBook(book);
 
-        if (updated) {
-            sendResponse(exchange, 200, "{\"message\":\"Book updated successfully\"}");
-        } else {
-            sendResponse(exchange, 400, "{\"error\":\"Book not updated\"}");
+            if (updated) {
+                sendResponse(exchange, 200, "{\"message\":\"Book updated successfully\"}");
+            } else {
+                sendResponse(exchange, 400, "{\"error\":\"Book not updated\"}");
+            }
+        }catch (com.google.gson.JsonSyntaxException e ){
+            sendResponse(exchange, 400, "{\"error\":\"Invalid JSON format\"}");
         }
     }
 

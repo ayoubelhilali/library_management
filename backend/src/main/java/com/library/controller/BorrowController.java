@@ -2,6 +2,10 @@ package com.library.controller;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.library.patterns.command.BorrowBookCommand;
+import com.library.patterns.command.Command;
+import com.library.patterns.command.ReturnBookCommand;
+import com.library.patterns.facade.LibraryFacade;
 import com.library.service.BorrowService;
 import com.library.utils.LocalDateAdapter;
 import com.sun.net.httpserver.HttpExchange;
@@ -15,7 +19,7 @@ import java.time.LocalDate;
 
 public class BorrowController implements HttpHandler {
 
-    private final BorrowService borrowService = new BorrowService();
+    private final LibraryFacade libraryFacade = new LibraryFacade();
     private final Gson gson = new GsonBuilder()
             .registerTypeAdapter(LocalDate.class, new LocalDateAdapter())
             .create();
@@ -33,7 +37,16 @@ public class BorrowController implements HttpHandler {
             }
 
             if (path.equals("/api/borrows") && method.equals("GET")) {
-                sendResponse(exchange, 200, gson.toJson(borrowService.getAllBorrows()));
+                String query = exchange.getRequestURI().getQuery();
+                if (query != null && query.startsWith("id=")) {
+                    int id = Integer.parseInt(query.substring(3));
+
+                    sendResponse(exchange, 200,
+                            gson.toJson(libraryFacade.getBorrowById(id)));
+                    return;
+                }
+                sendResponse(exchange, 200,
+                        gson.toJson(libraryFacade.getAllBorrows()));
                 return;
             }
 
@@ -68,10 +81,8 @@ public class BorrowController implements HttpHandler {
         try {
             BorrowRequest request =
                     gson.fromJson(body, BorrowRequest.class);
-            boolean result = borrowService.borrowBook(
-                    request.bookId,
-                    request.memberId
-            );
+            Command command=new BorrowBookCommand(libraryFacade, request.bookId, request.memberId);
+            boolean result = command.execute();
             if (result) {
                 sendResponse(exchange, 201,
                         "{\"message\":\"Book borrowed successfully\"}");
@@ -89,14 +100,26 @@ public class BorrowController implements HttpHandler {
 
         String body = readBody(exchange);
 
-        ReturnRequest request = gson.fromJson(body, ReturnRequest.class);
+        if (body == null || body.isBlank()) {
+            sendResponse(exchange, 400, "{\"error\":\"Request body is empty\"}");
+            return;
+        }
+        try {
+            ReturnRequest request = gson.fromJson(body, ReturnRequest.class);
 
-        boolean result = borrowService.returnBook(request.borrowId);
+            Command command = new ReturnBookCommand(
+                    libraryFacade,
+                    request.borrowId
+            );
+            boolean result = command.execute();
+            if (result) {
+                sendResponse(exchange, 200, "{\"message\":\"Book returned successfully\"}");
+            } else {
+                sendResponse(exchange, 400, "{\"error\":\"Return failed\"}");
+            }
 
-        if (result) {
-            sendResponse(exchange, 200, "{\"message\":\"Book returned successfully\"}");
-        } else {
-            sendResponse(exchange, 400, "{\"error\":\"Return failed\"}");
+        } catch (com.google.gson.JsonSyntaxException e) {
+            sendResponse(exchange, 400, "{\"error\":\"Invalid JSON format\"}");
         }
     }
 
