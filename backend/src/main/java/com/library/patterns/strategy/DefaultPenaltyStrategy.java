@@ -5,13 +5,13 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
 /**
- * Classe StudentPenaltyStrategy - Stratégie de pénalité pour les étudiants
- * Les étudiants ont une pénalité réduite: 0.50 par jour de retard (max 5.00)
+ * Classe DefaultPenaltyStrategy - Stratégie de pénalité par défaut pour les autres membres
+ * Pénalité standard: 1.00 par jour de retard (max 10.00)
  */
-public class StudentPenaltyStrategy implements PenaltyStrategy {
+public class DefaultPenaltyStrategy implements PenaltyStrategy {
 
-    private static final double PENALTY_RATE_PER_DAY = 0.50;
-    private static final double MAX_PENALTY = 5.00;
+    private static final double PENALTY_RATE_PER_DAY = 1.00;
+    private static final double MAX_PENALTY = 10.00;
 
     @Override
     public double calculatePenalty(Borrow borrow) {
@@ -46,7 +46,7 @@ public class StudentPenaltyStrategy implements PenaltyStrategy {
 
     @Override
     public String getStrategyDescription() {
-        return "Student Penalty Strategy: 0.50 per day (max 5.00)";
+        return "Default Penalty Strategy: 1.00 per day (max 10.00)";
     }
 
     @Override

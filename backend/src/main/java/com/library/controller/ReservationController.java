@@ -1,8 +1,9 @@
 package com.library.controller;
 
 import com.google.gson.Gson;
-import com.library.model.Member;
-import com.library.service.MemberService;
+import com.library.model.Reservation;
+import com.library.model.enums.ReservationStatus;
+import com.library.service.ReservationService;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
@@ -10,9 +11,9 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-public class MemberController implements HttpHandler {
+public class ReservationController implements HttpHandler {
 
-    private final MemberService memberService = new MemberService();
+    private final ReservationService reservationService = new ReservationService();
     private final Gson gson = new Gson();
 
     @Override
@@ -43,53 +44,68 @@ public class MemberController implements HttpHandler {
 
         if (query != null && query.startsWith("id=")) {
             int id = Integer.parseInt(query.substring(3));
-            Member member = memberService.getMemberById(id);
+            Reservation reservation = reservationService.getReservationById(id);
 
-            if (member == null) {
-                sendResponse(exchange, 404, "{\"error\":\"Member not found\"}");
+            if (reservation == null) {
+                sendResponse(exchange, 404, "{\"error\":\"Reservation not found\"}");
                 return;
             }
 
-            sendResponse(exchange, 200, gson.toJson(member));
+            sendResponse(exchange, 200, gson.toJson(reservation));
             return;
         }
 
-        if (query != null && query.startsWith("search=")) {
-            String keyword = query.substring(7);
-            List<Member> members = memberService.searchMembers(keyword);
-            sendResponse(exchange, 200, gson.toJson(members));
+        if (query != null && query.startsWith("memberId=")) {
+            int memberId = Integer.parseInt(query.substring(9));
+            List<Reservation> reservations = reservationService.getReservationsByMemberId(memberId);
+            sendResponse(exchange, 200, gson.toJson(reservations));
             return;
         }
 
-        List<Member> members = memberService.getAllMembers();
-        sendResponse(exchange, 200, gson.toJson(members));
+        if (query != null && query.startsWith("bookId=")) {
+            int bookId = Integer.parseInt(query.substring(7));
+            List<Reservation> reservations = reservationService.getReservationsByBookId(bookId);
+            sendResponse(exchange, 200, gson.toJson(reservations));
+            return;
+        }
+
+        if (query != null && query.startsWith("status=")) {
+            String statusStr = query.substring(7);
+            ReservationStatus status = ReservationStatus.valueOf(statusStr);
+            List<Reservation> reservations = reservationService.getReservationsByStatus(status);
+            sendResponse(exchange, 200, gson.toJson(reservations));
+            return;
+        }
+
+        List<Reservation> reservations = reservationService.getAllReservations();
+        sendResponse(exchange, 200, gson.toJson(reservations));
     }
 
     private void handlePost(HttpExchange exchange) throws IOException {
 
         String body = readBody(exchange);
-        Member member = gson.fromJson(body, Member.class);
+        Reservation reservation = gson.fromJson(body, Reservation.class);
 
-        boolean created = memberService.addMember(member);
+        boolean created = reservationService.addReservation(reservation);
 
         if (created) {
-            sendResponse(exchange, 201, "{\"message\":\"Member added successfully\"}");
+            sendResponse(exchange, 201, "{\"message\":\"Reservation created successfully\"}");
         } else {
-            sendResponse(exchange, 400, "{\"error\":\"Member not added\"}");
+            sendResponse(exchange, 400, "{\"error\":\"Reservation not created\"}");
         }
     }
 
     private void handlePut(HttpExchange exchange) throws IOException {
 
         String body = readBody(exchange);
-        Member member = gson.fromJson(body, Member.class);
+        Reservation reservation = gson.fromJson(body, Reservation.class);
 
-        boolean updated = memberService.updateMember(member);
+        boolean updated = reservationService.updateReservation(reservation);
 
         if (updated) {
-            sendResponse(exchange, 200, "{\"message\":\"Member updated successfully\"}");
+            sendResponse(exchange, 200, "{\"message\":\"Reservation updated successfully\"}");
         } else {
-            sendResponse(exchange, 400, "{\"error\":\"Member not updated\"}");
+            sendResponse(exchange, 400, "{\"error\":\"Reservation not updated\"}");
         }
     }
 
@@ -98,17 +114,17 @@ public class MemberController implements HttpHandler {
         String query = exchange.getRequestURI().getQuery();
 
         if (query == null || !query.startsWith("id=")) {
-            sendResponse(exchange, 400, "{\"error\":\"Missing member id\"}");
+            sendResponse(exchange, 400, "{\"error\":\"Missing reservation id\"}");
             return;
         }
 
         int id = Integer.parseInt(query.substring(3));
-        boolean deleted = memberService.deleteMember(id);
+        boolean deleted = reservationService.deleteReservation(id);
 
         if (deleted) {
-            sendResponse(exchange, 200, "{\"message\":\"Member deleted successfully\"}");
+            sendResponse(exchange, 200, "{\"message\":\"Reservation deleted successfully\"}");
         } else {
-            sendResponse(exchange, 404, "{\"error\":\"Member not found\"}");
+            sendResponse(exchange, 404, "{\"error\":\"Reservation not found\"}");
         }
     }
 
