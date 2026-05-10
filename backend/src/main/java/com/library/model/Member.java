@@ -8,6 +8,9 @@ public abstract class Member {
     private String email ;
     private String phone ;
 
+
+    public Member(){}
+
     public Member(int id, String name, String email, String phone) {
         this.id = id;
         this.name = name;
@@ -42,6 +45,11 @@ public abstract class Member {
 
 
     //setters
+
+    public void setId(int id){
+        this.id = id ;
+    }
+    
     public void setName(String name) {
         this.name = name;
     }

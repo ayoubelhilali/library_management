@@ -1,0 +1,7 @@
+package com.library.patterns.observer ;
+
+
+public interface Observer {
+
+    void update() ;
+}
