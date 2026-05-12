@@ -11,7 +11,6 @@ public abstract class User {
     private String password;
 
     // ADMIN / ADHERENT
-    // private String role;
 
     // private Integer memberId;
 

@@ -59,13 +59,20 @@ public class AuthController implements HttpHandler {
                 return;
             }
 
-            User user = gson.fromJson(body, User.class);
-            boolean created = authService.register(user);
+            RegisterRequest request = gson.fromJson(body, RegisterRequest.class);
+
+            boolean created = authService.registerMember(
+                    request.username,
+                    request.email,
+                    request.phone,
+                    request.password,
+                    request.memberType
+            );
 
             if (created) {
-                sendResponse(exchange, 201, "{\"message\":\"User registered successfully\"}");
+                sendResponse(exchange, 201, "{\"message\":\"Member registered successfully\"}");
             } else {
-                sendResponse(exchange, 400, "{\"error\":\"User not registered\"}");
+                sendResponse(exchange, 400, "{\"error\":\"Member not registered\"}");
             }
 
         } catch (com.google.gson.JsonSyntaxException e) {
@@ -139,4 +146,13 @@ public class AuthController implements HttpHandler {
         String username;
         String password;
     }
+
+    private static class RegisterRequest {
+        String username;
+        String email;
+        String phone;
+        String password;
+        String memberType;
+    }
 }
+

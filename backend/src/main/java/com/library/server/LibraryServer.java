@@ -25,12 +25,9 @@ public class LibraryServer {
         server.createContext("/api/borrow", new BorrowController());
         server.createContext("/api/return", new BorrowController());
 
-
         server.createContext("/api/members", new MemberController());
         server.createContext("/api/reservations",new ReservationController()) ;
-        
 
-        
         server.setExecutor(null);
         server.start();
 

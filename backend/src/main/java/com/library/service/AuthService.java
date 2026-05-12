@@ -1,122 +1,102 @@
 package com.library.service;
 
 import com.library.dao.UserDAO;
+import com.library.dao.MemberDAO;
 import com.library.model.User;
+import com.library.model.Member;
+import com.library.model.enums.MemberType;
+import com.library.patterns.factory.MemberFactory;
 import org.mindrot.jbcrypt.BCrypt;
 
 public class AuthService {
 
     private final UserDAO userDAO;
+    private final MemberDAO memberDAO;
 
     public AuthService() {
         this.userDAO = new UserDAO();
+        this.memberDAO = new MemberDAO();
     }
 
-    // 🟢 REGISTER
-    public boolean register(User user) {
+    public boolean registerMember(
+            String username,
+            String email,
+            String phone,
+            String password,
+            String memberType
+    ) {
+        validateRegisterData(username, password, memberType);
 
-        validateUser(user);
-
-        User existingUser =
-                userDAO.findByUsername(user.getUsername());
+        User existingUser = userDAO.findByUsername(username);
 
         if (existingUser != null) {
-            throw new IllegalArgumentException(
-                    "Username already exists"
-            );
+            throw new IllegalArgumentException("Username already exists");
         }
 
-        // Hash password
-        String hashedPassword =
-                BCrypt.hashpw(
-                        user.getPassword(),
-                        BCrypt.gensalt()
-                );
+        String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
 
-        user.setPassword(hashedPassword);
-        return userDAO.createUser(user);
+        MemberType type = MemberType.valueOf(memberType);
+
+        Member member = MemberFactory.createMember(
+                0,
+                username,
+                email,
+                phone,
+                hashedPassword,
+                type
+        );
+
+        return memberDAO.addMember(member);
     }
 
-    // LOGIN
     public User login(String username, String password) {
 
         if (username == null || username.isBlank()) {
-            throw new IllegalArgumentException(
-                    "Username is required"
-            );
+            throw new IllegalArgumentException("Username is required");
         }
 
         if (password == null || password.isBlank()) {
-            throw new IllegalArgumentException(
-                    "Password is required"
-            );
+            throw new IllegalArgumentException("Password is required");
         }
 
-        User user =
-                userDAO.findByUsername(username);
+        User user = userDAO.findByUsername(username);
 
         if (user == null) {
-            throw new IllegalArgumentException(
-                    "Invalid username or password"
-            );
+            throw new IllegalArgumentException("Invalid username or password");
         }
 
-        boolean passwordMatches =
-                BCrypt.checkpw(
-                        password,
-                        user.getPassword()
-                );
+        boolean passwordMatches = BCrypt.checkpw(password, user.getPassword());
 
         if (!passwordMatches) {
-            throw new IllegalArgumentException(
-                    "Invalid username or password"
-            );
+            throw new IllegalArgumentException("Invalid username or password");
         }
 
         return user;
     }
 
-    // VALIDATION
-    private void validateUser(User user) {
-
-        if (user == null) {
-            throw new IllegalArgumentException(
-                    "User cannot be null"
-            );
+    private void validateRegisterData(
+            String username,
+            String password,
+            String memberType
+    ) {
+        if (username == null || username.isBlank()) {
+            throw new IllegalArgumentException("Username is required");
         }
 
-        if (user.getUsername() == null
-                || user.getUsername().isBlank()) {
-
-            throw new IllegalArgumentException(
-                    "Username is required"
-            );
-        }
-
-        if (user.getPassword() == null
-                || user.getPassword().length() < 6) {
-
+        if (password == null || password.length() < 6) {
             throw new IllegalArgumentException(
                     "Password must contain at least 6 characters"
             );
         }
 
-        // if (user.getRole() == null
-        //         || user.getRole().isBlank()) {
-
-        //     throw new IllegalArgumentException(
-        //             "Role is required"
-        //     );
-        // }
-
-
-        if (user.getRole() == null) {
-
-            throw new IllegalArgumentException(
-                    "Role is required"
-            );
+        if (memberType == null || memberType.isBlank()) {
+            throw new IllegalArgumentException("Member type is required");
         }
 
-
+        if (!memberType.equals("STUDENT") && !memberType.equals("TEACHER")) {
+            throw new IllegalArgumentException(
+                    "Member type must be STUDENT or TEACHER"
+            );
+        }
     }
 }

@@ -110,6 +110,44 @@ public class UserDAO {
         return null;
     }
 
+    public int createUserAndReturnId(User user) {
+
+        String query = """
+            INSERT INTO users(username,email,phone,password,role)
+            VALUES (?,?,?,?,?)
+            """;
+
+        try (
+                PreparedStatement ps = connection.prepareStatement(
+                        query,
+                        PreparedStatement.RETURN_GENERATED_KEYS
+                )
+        ) {
+
+            ps.setString(1, user.getUsername());
+            ps.setString(2, user.getEmail());
+            ps.setString(3, user.getPhone());
+            ps.setString(4, user.getPassword());
+            ps.setString(5, user.getRole().toString());
+
+            int rows = ps.executeUpdate();
+
+            if (rows > 0) {
+
+                ResultSet rs = ps.getGeneratedKeys();
+
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return -1;
+    }
+
     // FIND USER BY ID
     public User findById(int id) {
 
