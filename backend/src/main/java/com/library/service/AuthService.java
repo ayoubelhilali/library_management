@@ -101,12 +101,22 @@ public class AuthService {
             );
         }
 
-        if (user.getRole() == null
-                || user.getRole().isBlank()) {
+        // if (user.getRole() == null
+        //         || user.getRole().isBlank()) {
+
+        //     throw new IllegalArgumentException(
+        //             "Role is required"
+        //     );
+        // }
+
+
+        if (user.getRole() == null) {
 
             throw new IllegalArgumentException(
                     "Role is required"
             );
         }
+
+
     }
 }

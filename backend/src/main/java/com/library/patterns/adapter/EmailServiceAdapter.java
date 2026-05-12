@@ -46,7 +46,7 @@ public class EmailServiceAdapter implements NotificationChannel {
     private String buildEmailBody(Notification notification) {
         StringBuilder body = new StringBuilder();
 
-        body.append("Dear ").append(notification.getMember().getName()).append(",\n\n");
+        body.append("Dear ").append(notification.getMember().getUsername()).append(",\n\n");
         body.append("You have a new notification:\n\n");
         body.append(notification.getMessage()).append("\n\n");
         body.append("Sent on: ").append(notification.getSendDate()).append("\n\n");

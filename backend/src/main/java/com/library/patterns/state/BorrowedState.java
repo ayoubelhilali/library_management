@@ -1,6 +1,7 @@
 package com.library.patterns.state;
 
 import com.library.model.Book;
+import com.library.model.enums.BookStatus;
 
 public class BorrowedState implements BookState {
 
@@ -11,11 +12,11 @@ public class BorrowedState implements BookState {
 
     @Override
     public void returnBook(Book book) {
-        book.setStatus("AVAILABLE");
+        book.setStatus(BookStatus.AVAILABLE);
     }
 
     @Override
     public void reserve(Book book) {
-        book.setStatus("RESERVED");
+        book.setStatus(BookStatus.RESERVED);
     }
 }

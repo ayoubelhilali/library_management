@@ -8,11 +8,12 @@ import com.library.model.enums.MemberType;
 public class MemberFactory {
 
     public static Member createMember(
-            int id,
-            String name,
-            String email,
-            String phone ,
-            MemberType type
+                int id,
+                String username, 
+                String email,
+                String phone, 
+                String password,
+                MemberType type
     ) {
 
 
@@ -20,18 +21,20 @@ public class MemberFactory {
 
                 return new StudentMember(
                         id,
-                        name,
+                        username,
                         email,
-                        phone
+                        phone,
+                        password
                 );
 
         }else{
 
                 return new TeacherMember( 
                         id,
-                        name,
+                        username,
                         email,
-                        phone
+                        phone,
+                        password
                 );
 
         }

@@ -1,5 +1,7 @@
 package com.library.model;
 
+import com.library.model.enums.BookStatus;
+
 public class Book {
 
     private int id;
@@ -7,7 +9,7 @@ public class Book {
     private String author;
     private String category;
     private String isbn;
-    private String status;
+    private BookStatus status;
 
 
     public Book(){
@@ -54,11 +56,11 @@ public class Book {
         this.isbn = isbn;
     }
 
-    public String getStatus() {
+    public BookStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(BookStatus status) {
         this.status = status;
     }
 }

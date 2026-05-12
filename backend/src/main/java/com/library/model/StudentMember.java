@@ -13,14 +13,15 @@ public class StudentMember extends Member {
 
 
     public StudentMember(
-            int id,
-            String name,
-            String email,
-            String phone
+        int id,
+        String username, 
+        String email,
+        String phone, 
+        String password
 
     ) {
 
-        super(id, name, email, phone);
+        super(id, username,email, phone, password) ;
 
     }
 
@@ -36,6 +37,10 @@ public class StudentMember extends Member {
     public int getMaxBorrowLimit() {
         return 3;
     }
+
+
+    
+
 
    
 }

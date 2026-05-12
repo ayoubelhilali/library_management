@@ -1,6 +1,7 @@
 package com.library.patterns.builder ;
 
 import com.library.model.Book;
+import com.library.model.enums.BookStatus;
 
 public class BookBuilder {
 
@@ -44,7 +45,7 @@ public class BookBuilder {
     }
 
 
-    public BookBuilder status(String status){
+    public BookBuilder status(BookStatus status){
         book.setStatus(status);
 
         return this ;

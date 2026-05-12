@@ -33,22 +33,22 @@ public class MemberService {
         return memberDAO.addMember(member);
     }
 
-    public boolean updateMember(Member member) {
+    // public boolean updateMember(Member member) {
 
-        if (member.getId() <= 0) {
-            throw new IllegalArgumentException("Invalid member id");
-        }
+    //     if (member.getId() <= 0) {
+    //         throw new IllegalArgumentException("Invalid member id");
+    //     }
 
-        validateMember(member);
+    //     validateMember(member);
 
-        Member existingMember = memberDAO.getMemberById(member.getId());
+    //     Member existingMember = memberDAO.getMemberById(member.getId());
 
-        if (existingMember == null) {
-            throw new IllegalArgumentException("Member not found");
-        }
+    //     if (existingMember == null) {
+    //         throw new IllegalArgumentException("Member not found");
+    //     }
 
-        return memberDAO.updateMember(member);
-    }
+    //     return memberDAO.updateMember(member);
+    // }
 
     public boolean deleteMember(int id) {
 
@@ -65,14 +65,14 @@ public class MemberService {
         return memberDAO.deleteMember(id);
     }
 
-    public List<Member> searchMembers(String keyword) {
+    // public List<Member> searchMembers(String keyword) {
 
-        if (keyword == null || keyword.isBlank()) {
-            return getAllMembers();
-        }
+    //     if (keyword == null || keyword.isBlank()) {
+    //         return getAllMembers();
+    //     }
 
-        return memberDAO.searchMembers(keyword.trim());
-    }
+    //     return memberDAO.searchMembers(keyword.trim());
+    // }
 
     private void validateMember(Member member) {
 
@@ -80,9 +80,9 @@ public class MemberService {
             throw new IllegalArgumentException("Member cannot be null");
         }
 
-        if (member.getName() == null || member.getName().isBlank()) {
-            throw new IllegalArgumentException("Name is required");
-        }
+        // if (member.getName() == null || member.getName().isBlank()) {
+        //     throw new IllegalArgumentException("Name is required");
+        // }
 
         if (member.getEmail() == null || member.getEmail().isBlank()) {
             throw new IllegalArgumentException("Email is required");

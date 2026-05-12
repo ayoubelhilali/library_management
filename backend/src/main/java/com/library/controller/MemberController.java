@@ -1,7 +1,11 @@
 package com.library.controller;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.library.model.Member;
+import com.library.model.StudentMember;
+import com.library.model.TeacherMember;
+import com.library.model.enums.MemberType;
 import com.library.service.MemberService;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -24,7 +28,7 @@ public class MemberController implements HttpHandler {
             switch (method) {
                 case "GET" -> handleGet(exchange);
                 case "POST" -> handlePost(exchange);
-                case "PUT" -> handlePut(exchange);
+                // case "PUT" -> handlePut(exchange);
                 case "DELETE" -> handleDelete(exchange);
                 default -> sendResponse(exchange, 405, "{\"error\":\"Method not allowed\"}");
             }
@@ -54,12 +58,12 @@ public class MemberController implements HttpHandler {
             return;
         }
 
-        if (query != null && query.startsWith("search=")) {
-            String keyword = query.substring(7);
-            List<Member> members = memberService.searchMembers(keyword);
-            sendResponse(exchange, 200, gson.toJson(members));
-            return;
-        }
+        // if (query != null && query.startsWith("search=")) {
+        //     String keyword = query.substring(7);
+        //     List<Member> members = memberService.searchMembers(keyword);
+        //     sendResponse(exchange, 200, gson.toJson(members));
+        //     return;
+        // }
 
         List<Member> members = memberService.getAllMembers();
         sendResponse(exchange, 200, gson.toJson(members));
@@ -68,7 +72,32 @@ public class MemberController implements HttpHandler {
     private void handlePost(HttpExchange exchange) throws IOException {
 
         String body = readBody(exchange);
-        Member member = gson.fromJson(body, Member.class);
+
+        JsonObject jsonObject =
+            gson.fromJson(body, JsonObject.class);
+
+        
+
+        Member member ;
+
+        String typeString =
+            jsonObject.get("memberType").getAsString();
+
+        MemberType type =
+            MemberType.valueOf(typeString);
+        
+        if(type == MemberType.STUDENT) member =  gson.fromJson(body, StudentMember.class);
+        else if(type == MemberType.TEACHER) member = gson.fromJson(body, TeacherMember.class) ;
+        else{
+
+            sendResponse(
+                exchange,
+                400,
+                "{\"error\":\"Invalid member type\"}"
+            );
+
+            return ;
+        }
 
         boolean created = memberService.addMember(member);
 
@@ -79,19 +108,19 @@ public class MemberController implements HttpHandler {
         }
     }
 
-    private void handlePut(HttpExchange exchange) throws IOException {
+    // private void handlePut(HttpExchange exchange) throws IOException {
 
-        String body = readBody(exchange);
-        Member member = gson.fromJson(body, Member.class);
+    //     String body = readBody(exchange);
+    //     Member member = gson.fromJson(body, Member.class);
 
-        boolean updated = memberService.updateMember(member);
+    //     boolean updated = memberService.updateMember(member);
 
-        if (updated) {
-            sendResponse(exchange, 200, "{\"message\":\"Member updated successfully\"}");
-        } else {
-            sendResponse(exchange, 400, "{\"error\":\"Member not updated\"}");
-        }
-    }
+    //     if (updated) {
+    //         sendResponse(exchange, 200, "{\"message\":\"Member updated successfully\"}");
+    //     } else {
+    //         sendResponse(exchange, 400, "{\"error\":\"Member not updated\"}");
+    //     }
+    // }
 
     private void handleDelete(HttpExchange exchange) throws IOException {
 

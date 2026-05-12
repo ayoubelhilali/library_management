@@ -1,5 +1,6 @@
 package com.library.dao;
 import com.library.model.Book;
+import com.library.model.enums.BookStatus;
 import com.library.patterns.builder.BookBuilder;
 import com.library.patterns.singleton.DBConnection;
 
@@ -34,7 +35,7 @@ public class BookDAO {
             ps.setString(2,book.getAuthor());
             ps.setString(3,book.getCategory());
             ps.setString(4,book.getIsbn());
-            ps.setString(5,book.getStatus());
+            ps.setString(5,book.getStatus().toString());
 
             int rows=ps.executeUpdate();
             return rows>0;
@@ -78,7 +79,7 @@ public class BookDAO {
         book.author(rs.getString("author"));
         book.category(rs.getString("category"));
         book.isbn(rs.getString("isbn"));
-        book.status(rs.getString("status"));
+        book.status(BookStatus.valueOf(rs.getString("status")));
         return book.build();
     }
 
@@ -89,7 +90,7 @@ public class BookDAO {
             ps.setString(2,book.getAuthor());
             ps.setString(3,book.getCategory());
             ps.setString(4,book.getIsbn());
-            ps.setString(5,book.getStatus());
+            ps.setString(5,book.getStatus().toString());
             ps.setInt(6,book.getId());
             int rows=ps.executeUpdate();
             return rows>0;

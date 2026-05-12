@@ -55,7 +55,7 @@ public class ReservationDAO {
 
                 Reservation reservation = new Reservation();
 
-                reservation.setReservationId(rs.getInt("id"));
+                reservation.setReservationId(rs.getInt("reservation_id"));
 
                 
                 reservation.setBookId(rs.getInt("book_id"));

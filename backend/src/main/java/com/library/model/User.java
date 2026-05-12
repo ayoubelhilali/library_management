@@ -1,26 +1,31 @@
 package com.library.model;
 
-public class User {
+import com.library.model.enums.userRole;
+
+public abstract class User {
 
     private int id;
-
-    private String username;
+    private String username ;
+    private String email ;
+    private String phone ;
     private String password;
 
     // ADMIN / ADHERENT
-    private String role;
+    // private String role;
 
-    private Integer memberId;
+    // private Integer memberId;
 
     public User() {
     }
 
-    public User(int id, String username, String password, String role, Integer memberId) {
+    public User(int id,String username,String email,String phone, String password) {
         this.id = id;
-        this.username = username;
+        this.username = username ;
         this.password = password;
-        this.role = role;
-        this.memberId = memberId;
+        this.email = email ;
+        this.phone = phone ;
+        // this.role = role;
+        // this.memberId = memberId;
     }
 
     public int getId() {
@@ -40,7 +45,6 @@ public class User {
         this.username = email;
     }
 
-
     public String getPassword() {
         return password;
     }
@@ -50,20 +54,47 @@ public class User {
     }
 
 
-    public String getRole() {
-        return role;
+    // public String getRole() {
+    //     return role;
+    // }
+
+    // public void setRole(String role) {
+    //     this.role = role;
+    // }
+
+
+    // public Integer getMemberId() {
+    //     return memberId;
+    // }
+
+    // public void setMemberId(Integer memberId) {
+    //     this.memberId = memberId;
+    // }
+
+
+
+    public String getEmail(){
+        return email ;
     }
 
-    public void setRole(String role) {
-        this.role = role;
+    public void setEmail(String email){
+        this.email = email ;
     }
 
 
-    public Integer getMemberId() {
-        return memberId;
+    public String getPhone(){
+        return phone ;
     }
 
-    public void setMemberId(Integer memberId) {
-        this.memberId = memberId;
+    public void setPhone(String phone){
+        this.phone = phone ;
     }
+
+
+
+
+    public abstract userRole getRole() ;
+
+
+
 }

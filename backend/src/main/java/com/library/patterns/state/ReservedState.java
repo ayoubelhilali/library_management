@@ -1,17 +1,18 @@
 package com.library.patterns.state;
 
 import com.library.model.Book;
+import com.library.model.enums.BookStatus;
 
 public class ReservedState implements BookState {
 
     @Override
     public void borrow(Book book) {
-        book.setStatus("BORROWED");
+        book.setStatus(BookStatus.BORROWED);
     }
 
     @Override
     public void returnBook(Book book) {
-        book.setStatus("AVAILABLE");
+        book.setStatus(BookStatus.AVAILABLE);
     }
 
     @Override

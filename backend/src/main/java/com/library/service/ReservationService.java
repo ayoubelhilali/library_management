@@ -6,6 +6,7 @@ import com.library.dao.ReservationDAO;
 import com.library.model.Book;
 import com.library.model.Member;
 import com.library.model.Reservation;
+import com.library.model.enums.BookStatus;
 import com.library.model.enums.ReservationStatus;
 
 import java.time.LocalDate;
@@ -55,7 +56,10 @@ public class ReservationService {
         }
 
         // Check if book is available
-        if (!"AVAILABLE".equalsIgnoreCase(book.getStatus())) {
+        // if (!"AVAILABLE".equalsIgnoreCase(book.getStatus())) {
+        //     throw new IllegalArgumentException("Book is not available for reservation");
+        // }
+        if ( BookStatus.AVAILABLE != book.getStatus()) {
             throw new IllegalArgumentException("Book is not available for reservation");
         }
 

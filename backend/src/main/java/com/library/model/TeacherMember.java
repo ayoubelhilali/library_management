@@ -10,13 +10,15 @@ public class TeacherMember extends Member {
     public TeacherMember(){}
 
     public TeacherMember(
-            int id,
-            String name,
-            String email,
-            String phone
+        int id,
+        String username, 
+        String email,
+        String phone, 
+        String password
   
     ) {
-        super(id, name, email, phone);
+
+        super(id, username,email, phone, password) ;
 
     }
 

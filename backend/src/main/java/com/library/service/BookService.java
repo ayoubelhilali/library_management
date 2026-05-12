@@ -42,9 +42,9 @@ public class BookService {
             throw new IllegalArgumentException("ISBN already exists");
         }
 
-        if (book.getStatus() == null || book.getStatus().isBlank()) {
-            book.setStatus("AVAILABLE");
-        }
+        // if (book.getStatus() == null || book.getStatus().isBlank()) {
+        //     book.setStatus("AVAILABLE");
+        // }
         return bookDAO.addBook(book);
     }
 

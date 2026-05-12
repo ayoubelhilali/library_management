@@ -1,10 +1,13 @@
 package com.library;
 
+import com.library.dao.DatabaseSchemaDAO;
 import com.library.server.LibraryServer;
 
 public class Main {
 
     public static void main(String[] args) {
+
+        DatabaseSchemaDAO.createTables() ;
 
         try {
             LibraryServer.start();

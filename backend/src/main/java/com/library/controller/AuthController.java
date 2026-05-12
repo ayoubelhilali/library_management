@@ -86,12 +86,18 @@ public class AuthController implements HttpHandler {
 
             User user = authService.login(request.username, request.password);
 
+            // String response = String.format(
+            //         "{\"message\":\"Login successful\",\"id\":%d,\"username\":\"%s\",\"role\":\"%s\",\"memberId\":%s}",
+            //         user.getId(),
+            //         user.getUsername(),
+            //         user.getRole(),
+            //         user.getMemberId() == null ? "null" : user.getMemberId().toString()
+            // );
             String response = String.format(
-                    "{\"message\":\"Login successful\",\"id\":%d,\"username\":\"%s\",\"role\":\"%s\",\"memberId\":%s}",
-                    user.getId(),
-                    user.getUsername(),
-                    user.getRole(),
-                    user.getMemberId() == null ? "null" : user.getMemberId().toString()
+                "{\"message\":\"Login successful\",\"id\":%d,\"username\":\"%s\",\"role\":\"%s\"}",
+                user.getId(),
+                user.getUsername(),
+                user.getRole()
             );
 
             sendResponse(exchange, 200, response);
