@@ -1,20 +1,25 @@
 package com.library.controller;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.library.model.Reservation;
 import com.library.model.enums.ReservationStatus;
 import com.library.service.ReservationService;
+import com.library.utils.LocalDateAdapter;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
 import java.util.List;
 
 public class ReservationController implements HttpHandler {
 
     private final ReservationService reservationService = new ReservationService();
-    private final Gson gson = new Gson();
+    private final Gson gson = new GsonBuilder()
+            .registerTypeAdapter(LocalDate.class, new LocalDateAdapter())
+            .create();
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {

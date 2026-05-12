@@ -14,12 +14,20 @@ import com.library.patterns.singleton.DBConnection;
 
 public class ReservationDAO {
 
+    private final Connection connection ;
+
+    public ReservationDAO(){
+
+        connection = DBConnection.getInstance().getConnection() ;
+
+    }
+
     
     public boolean addReservation(Reservation reservation) {
 
         String query = "INSERT INTO reservations (book_id, member_id, reservation_date, status) VALUES (?, ?, ?, ?)";
 
-        try (Connection connection = DBConnection.getInstance().getConnection();
+        try (
              PreparedStatement stmt = connection.prepareStatement(query)) {
 
             stmt.setInt(1, reservation.getBookId());
@@ -47,7 +55,7 @@ public class ReservationDAO {
 
         String query = "SELECT * FROM reservations";
 
-        try (Connection connection = DBConnection.getInstance().getConnection();
+        try (
              PreparedStatement stmt = connection.prepareStatement(query);
              ResultSet rs = stmt.executeQuery()) {
 
@@ -86,7 +94,7 @@ public class ReservationDAO {
 
         String query = "SELECT * FROM reservations WHERE reservation_id = ?";
 
-        try (Connection connection = DBConnection.getInstance().getConnection();
+        try (
              PreparedStatement stmt = connection.prepareStatement(query)) {
 
             stmt.setInt(1, id);
@@ -127,7 +135,7 @@ public class ReservationDAO {
 
         String query = "UPDATE reservations SET book_id = ?, member_id = ?, reservation_date = ?, status = ? WHERE reservation_id = ?";
 
-        try (Connection connection = DBConnection.getInstance().getConnection();
+        try (
              PreparedStatement stmt = connection.prepareStatement(query)) {
 
             stmt.setInt(1, reservation.getBookId());
@@ -154,7 +162,7 @@ public class ReservationDAO {
 
         String query = "DELETE FROM reservations WHERE reservation_id = ?";
 
-        try (Connection connection = DBConnection.getInstance().getConnection();
+        try (
              PreparedStatement stmt = connection.prepareStatement(query)) {
 
             stmt.setInt(1, id);
@@ -179,7 +187,7 @@ public class ReservationDAO {
 
         String query = "SELECT * FROM reservations WHERE member_id = ?";
 
-        try (Connection connection = DBConnection.getInstance().getConnection();
+        try (
              PreparedStatement stmt = connection.prepareStatement(query)) {
 
             stmt.setInt(1, memberId);
@@ -219,7 +227,7 @@ public class ReservationDAO {
 
         String query = "SELECT * FROM reservations WHERE book_id = ?";
 
-        try (Connection connection = DBConnection.getInstance().getConnection();
+        try (
              PreparedStatement stmt = connection.prepareStatement(query)) {
 
             stmt.setInt(1, bookId);
@@ -259,7 +267,7 @@ public class ReservationDAO {
 
         String query = "SELECT * FROM reservations WHERE status = ?";
 
-        try (Connection connection = DBConnection.getInstance().getConnection();
+        try (
              PreparedStatement stmt = connection.prepareStatement(query)) {
 
             stmt.setString(1, status.name());
