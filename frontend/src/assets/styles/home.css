@@ -1,0 +1,108 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,700&family=Inter:wght@400;600;700&display=swap');
+
+:root {
+    --primary: #1A322B; /* Deep Library Green */
+    --accent: #C5A059;  /* Gold/Brass Accent */
+    --bg-warm: #F9F7F2; /* Paper/Parchment White */
+    --text-muted: #6C757D;
+}
+
+body {
+    background-color: var(--bg-warm);
+    font-family: 'Inter', sans-serif;
+}
+
+.text-serif {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    color: var(--bg-warm);
+}
+
+.ls-2 { letter-spacing: 2px; }
+.text-accent { color: var(--accent); }
+
+/* Hero Styling */
+.main-title {
+    line-height: 1.1;
+    color: var(--primary);
+}
+
+.rounded-custom {
+    border-radius: 24px;
+}
+
+.hero-image-container {
+    position: relative;
+    padding: 20px;
+}
+
+.glass-card {
+    position: absolute;
+    bottom: -20px;
+    left: -40px;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    padding: 25px;
+    border-radius: 16px;
+    max-width: 280px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Buttons */
+.btn-dark-custom {
+    background-color: var(--primary);
+    color: white;
+    padding: 14px 35px;
+    border-radius: 12px;
+    font-weight: 600;
+    transition: transform 0.2s ease;
+    text-decoration: none;
+}
+
+.btn-dark-custom:hover {
+    color: white;
+    transform: translateY(-3px);
+    background-color: #26473d;
+}
+
+.btn-link-custom {
+    color: var(--accent) !important;
+    text-decoration: none;
+    font-weight: 600;
+    align-self: center;
+    border-bottom: 2px solid transparent;
+    transition: 0.3s;
+}
+
+.btn-link-custom:hover {
+    border-bottom: 2px solid var(--accent);
+    color: #704a00;
+}
+
+/* Feature Cards */
+.feature-card {
+    background: white;
+    border: 1px solid rgba(0,0,0,0.05);
+    border-radius: 20px;
+    transition: all 0.3s ease;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+}
+
+.icon-box {
+    font-size: 1.8rem;
+    width: 60px;
+    height: 60px;
+    background: var(--bg-warm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 14px;
+}
+
+.home-wrapper{
+    background: var(--primary);
+}
