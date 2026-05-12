@@ -5,14 +5,15 @@ import API from "../api/api";
 function Register() {
   const navigate = useNavigate();
 
-  const [credentials, setCredentials] = useState({
-    fullName: "",
-    email: "",
-    username: "",
-    password: "",
-    confirmPassword: "",
-    memberType: "STUDENT",
-  });
+ const [credentials, setCredentials] = useState({
+   fullName: "",
+   email: "",
+   phone: "",
+   username: "",
+   password: "",
+   confirmPassword: "",
+   memberType: "STUDENT",
+ });
 
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -36,10 +37,9 @@ function Register() {
     try {
       const payload = {
         username: credentials.username,
-        password: credentials.password,
-        role: "ADHERENT",
-        name: credentials.fullName,
         email: credentials.email,
+        phone: credentials.phone,
+        password: credentials.password,
         memberType: credentials.memberType,
       };
 
@@ -99,6 +99,16 @@ function Register() {
               onChange={handleChange}
               className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-white"
               placeholder="Email address"
+              required
+            />
+
+            <input
+              type="text"
+              name="phone"
+              value={credentials.phone}
+              onChange={handleChange}
+              className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-white"
+              placeholder="Phone number"
               required
             />
 
