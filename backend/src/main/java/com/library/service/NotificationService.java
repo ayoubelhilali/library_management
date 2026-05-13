@@ -140,4 +140,10 @@ public class NotificationService {
             );
         }
     }
+
+
+        public boolean markAllAsRead(int memberId) {
+
+                return notificationDAO.markAllAsRead(memberId);
+        }
 }

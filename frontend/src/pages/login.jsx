@@ -28,6 +28,8 @@ function Login() {
     try {
       const response = await API.post("/login", credentials);
 
+      console.log(response.data);
+
       localStorage.setItem("user", JSON.stringify(response.data));
 
       navigate("/dashboard");

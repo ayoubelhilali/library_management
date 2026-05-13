@@ -223,7 +223,42 @@ public class NotificationController implements HttpHandler {
             return;
         }
 
-        // UPDATE FULL NOTIFICATION
+        if (
+                query != null &&
+                query.startsWith("markAllAsRead=")
+                ) {
+
+                int memberId =
+                        Integer.parseInt(
+                        query.substring(14)
+                        );
+
+                boolean updated =
+                        notificationService
+                        .markAllAsRead(memberId);
+
+                if (updated) {
+
+                        sendResponse(
+                        exchange,
+                        200,
+                        "{\"message\":\"All notifications marked as read\"}"
+                        );
+
+                } else {
+
+                        sendResponse(
+                        exchange,
+                        404,
+                        "{\"error\":\"No notifications found\"}"
+                        );
+                }
+
+                return;
+        }
+
+        
+                // UPDATE FULL NOTIFICATION
         String body = readBody(exchange);
 
         Notification notification =
