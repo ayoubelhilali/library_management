@@ -14,13 +14,13 @@ function BorrowList({ borrows, books, onReturnBook }) {
 
   return (
     <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
-      {borrows.map((borrow) => {
+      {borrows.map((borrow, index) => {
         const bookId = borrow.bookID || borrow.bookId;
         const isReturned = !!borrow.actualReturnDate;
 
         return (
           <div
-            key={borrow.id}
+            key={borrow.id || `borrow-${index}`}
             className="p-5 border-b border-slate-800 flex justify-between items-center"
           >
             <div>

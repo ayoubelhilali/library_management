@@ -11,13 +11,13 @@ import {
   LogOut,
 } from "lucide-react";
 
-function Sidebar({ user, activeTab, setActiveTab, logout }) {
+function Sidebar({ user, activeTab, setActiveTab, logout, unreadCount = 0}) {
   const memberItems = [
     { key: "overview", label: "Overview", icon: LayoutDashboard },
     { key: "browse", label: "Browse Books", icon: BookOpen },
     { key: "borrows", label: "My Borrows", icon: Library },
     { key: "reservations", label: "My Reservations", icon: BookmarkCheck },
-    { key: "notifications", label: "Notifications", icon: Bell },
+    { key: "notifications", label: "Notifications", icon: Bell, badge: unreadCount },
     { key: "profile", label: "Profile", icon: User },
   ];
 
@@ -62,7 +62,12 @@ function Sidebar({ user, activeTab, setActiveTab, logout }) {
                 size={20}
                 className={`${isActive ? "text-white" : "text-slate-500 group-hover:text-indigo-400"}`}
               />
-              <span className="font-medium">{item.label}</span>
+              <span className="font-medium flex-1 text-left">{item.label}</span>
+              {item.badge > 0 && (
+                <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                  {item.badge}
+                </span>
+              )}
             </button>
           );
         })}

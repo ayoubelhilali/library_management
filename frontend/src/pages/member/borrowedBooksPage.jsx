@@ -1,7 +1,7 @@
 import API from "../../api/api";
 import BorrowList from "../../components/dashboard/BorrowList";
 
-function BorrowedBooksPage({ books, borrows, reload }) {
+function BorrowedBooksPage({ books, borrows, reload, refreshNotifications }) {
   const activeBorrows = borrows.filter((b) => !b.actualReturnDate);
   const returnedBorrows = borrows.filter((b) => b.actualReturnDate);
 
@@ -10,6 +10,7 @@ function BorrowedBooksPage({ books, borrows, reload }) {
       await API.post("/return", { borrowId });
       alert("Book returned successfully");
       await reload();
+      if (refreshNotifications) await refreshNotifications();
     } catch (err) {
       alert(err.response?.data?.error || "Return failed");
     }

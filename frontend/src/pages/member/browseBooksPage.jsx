@@ -7,6 +7,7 @@ function BrowseBooksPage({
   borrows,
   reservations,
   reload,
+  refreshNotifications,
   setActiveTab,
 }) {
   const [searchTerm, setSearchTerm] = useState("");
@@ -35,6 +36,7 @@ function BrowseBooksPage({
       });
 
       await reload();
+      if (refreshNotifications) await refreshNotifications();
 
       setActiveTab("borrows");
     } catch (err) {
@@ -52,6 +54,7 @@ function BrowseBooksPage({
       alert("Book reserved successfully");
 
       await reload();
+      if (refreshNotifications) await refreshNotifications();
     } catch (err) {
       alert(err.response?.data?.error || "Reservation failed");
     }

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import API from "../api/api";
 
-export default function NotificationPage({ user }) {
+export default function NotificationPage({ user, onNotificationsMarkedRead }) {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -14,29 +14,40 @@ export default function NotificationPage({ user }) {
         // GET USER NOTIFICATIONS
         const response = await API.get(
           `/notifications?memberId=${user.id}`
-        );
-
-        setNotifications(response.data);
+        ).catch(err => {
+          console.error("Error fetching notifications:", err.response?.status || err.message);
+          return { data: [] };
+        });
 
         // MARK ALL AS READ
-        await API.put(
-          `/notifications?markAllAsRead=${user.id}`
-        );
+        if (response.data && response.data.length > 0) {
+          await API.put(
+            `/notifications?markAllAsRead=${user.id}`
+          ).catch(err => {
+            console.error("Error marking notifications as read:", err.response?.status || err.message);
+          });
+        }
 
-        // // UPDATE LOCAL STATE
-        // setNotifications((prev) =>
-        //   prev.map((notification) => ({
-        //     ...notification,
-        //     read: true,
-        //   }))
-        // );
+        // UPDATE LOCAL STATE with new data and notify dashboard
+        const updatedNotifications = (response.data || []).map((notification) => ({
+          ...notification,
+          read: true,
+        }));
+        
+        setNotifications(updatedNotifications);
+
+        // REFRESH SIDEBAR BADGE immediately
+        if (onNotificationsMarkedRead) {
+          onNotificationsMarkedRead();
+        }
 
       } catch (error) {
 
         console.error(
-          "Error fetching notifications:",
-          error
+          "Error in loadNotifications:",
+          error.message
         );
+        setNotifications([]);
 
       } finally {
 
@@ -121,10 +132,10 @@ export default function NotificationPage({ user }) {
 
         <div className="space-y-5">
 
-          {notifications.map((notification) => (
+          {notifications.map((notification, index) => (
 
             <div
-              key={notification.notificationId}
+              key={notification.notificationId || notification.id || `notification-${index}`}
               className={`rounded-2xl border p-6 transition-all ${
                 notification.read
                   ? "bg-slate-900 border-slate-800"

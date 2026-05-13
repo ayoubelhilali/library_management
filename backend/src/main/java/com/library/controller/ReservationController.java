@@ -3,10 +3,16 @@ package com.library.controller;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.library.model.Reservation;
+import com.library.model.Book;
+import com.library.model.Member;
 import com.library.model.enums.ReservationStatus;
 import com.library.patterns.command.ReserveBookCommand;
 import com.library.patterns.facade.LibraryFacade;
 import com.library.service.ReservationService;
+import com.library.patterns.observer.ReservationEvent;
+import com.library.patterns.observer.NotificationObserver;
+import com.library.dao.BookDAO;
+import com.library.dao.MemberDAO;
 import com.library.utils.LocalDateAdapter;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -19,6 +25,8 @@ import java.util.List;
 public class ReservationController implements HttpHandler {
 
     private final ReservationService reservationService = new ReservationService();
+    private final BookDAO bookDAO = new BookDAO();
+    private final MemberDAO memberDAO = new MemberDAO();
     private final Gson gson = new GsonBuilder()
             .registerTypeAdapter(LocalDate.class, new LocalDateAdapter())
             .create();
@@ -106,6 +114,20 @@ public class ReservationController implements HttpHandler {
 
         boolean created = command.execute();
         if (created) {
+            // Apply Observer Pattern - notify member of reservation event
+            try {
+                Book book = bookDAO.getBookById(reservation.getBookId());
+                Member member = memberDAO.getMemberById(reservation.getMemberId());
+                
+                if (book != null && member != null) {
+                    ReservationEvent reservationEvent = new ReservationEvent(reservation.getReservationId(), reservation.getMemberId(), book.getTitle());
+                    new NotificationObserver(member, reservationEvent);
+                    reservationEvent.createReservation();
+                }
+            } catch (Exception e) {
+                System.err.println("Error notifying member of reservation: " + e.getMessage());
+            }
+            
             sendResponse(exchange, 201, "{\"message\":\"Reservation created successfully\"}");
         } else {
             sendResponse(exchange, 400, "{\"error\":\"Reservation not created\"}");

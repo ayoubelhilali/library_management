@@ -4,26 +4,23 @@ import com.library.dao.UserDAO;
 import com.library.model.Notification;
 
 /**
- * Classe EmailServiceAdapter - Classe adapter qui adapte EmailService à l'interface NotificationChannel
- * Cet adapter convertit l'interface de EmailService pour qu'elle soit compatible avec NotificationChannel
+ * Classe EmailServiceAdapter - Classe adapter qui adapte EmailService pour envoyer des notifications
+ * Convertit les notifications en emails via EmailService
  */
-public class EmailServiceAdapter implements NotificationChannel {
+public class EmailServiceAdapter {
 
     private EmailService emailService;
-    private boolean isAvailable;
-    private UserDAO userDAO ; 
+    private UserDAO userDAO;
 
     public EmailServiceAdapter() {
         this.emailService = new EmailService();
-        this.isAvailable = true;
-        this.userDAO =  new UserDAO() ;
+        this.userDAO = new UserDAO();
     }
 
     /**
-     * Adapter la méthode sendNotification au format attendu par EmailService
+     * Adapter la notification pour l'envoyer par email via EmailService
      */
-    @Override
-    public boolean sendNotification(Notification notification) {
+    public boolean sendNotificationEmail(Notification notification) {
 
         if (notification == null) {
             System.err.println("Notification cannot be null");
@@ -35,13 +32,10 @@ public class EmailServiceAdapter implements NotificationChannel {
             return false;
         }
 
-        
-
         String recipient = userDAO.findById(notification.getMemberId()).getEmail();
         String subject = "Notification from Library Management System";
         String body = buildEmailBody(notification);
 
-        // Adapter la méthode emailService.sendEmail() pour utiliser l'interface NotificationChannel
         return emailService.sendEmail(recipient, subject, body);
     }
 
@@ -62,51 +56,7 @@ public class EmailServiceAdapter implements NotificationChannel {
     }
 
     /**
-     * Vérifier si le service d'email est disponible
-     */
-    @Override
-    public boolean isChannelAvailable() {
-        return isAvailable;
-    }
-
-    /**
-     * Obtenir le type de canal
-     */
-    @Override
-    public String getChannelType() {
-        return "EMAIL";
-    }
-
-    /**
-     * Définir la disponibilité du canal
-     */
-    public void setChannelAvailable(boolean available) {
-        this.isAvailable = available;
-    }
-
-    /**
-     * Envoyer une notification en masse via l'adapter
-     */
-    public boolean sendBulkNotifications(Notification[] notifications) {
-
-        if (notifications == null || notifications.length == 0) {
-            System.err.println("No notifications to send");
-            return false;
-        }
-
-        boolean allSent = true;
-
-        for (Notification notification : notifications) {
-            if (!sendNotification(notification)) {
-                allSent = false;
-            }
-        }
-
-        return allSent;
-    }
-
-    /**
-     * Obtenir l'instance du service d'email adapté
+     * Obtenir l'instance du service d'email
      */
     public EmailService getEmailService() {
         return emailService;
