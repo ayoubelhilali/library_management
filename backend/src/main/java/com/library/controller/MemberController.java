@@ -24,7 +24,10 @@ public class MemberController implements HttpHandler {
 
         try {
             String method = exchange.getRequestMethod();
-
+            if ("OPTIONS".equalsIgnoreCase(exchange.getRequestMethod())) {
+                sendResponse(exchange, 204, "");
+                return;
+            }
             switch (method) {
                 case "GET" -> handleGet(exchange);
                 case "POST" -> handlePost(exchange);
@@ -54,21 +57,19 @@ public class MemberController implements HttpHandler {
                 return;
             }
 
-            sendResponse(exchange, 200, gson.toJson(member));
+            sendResponse(exchange, 200, gson.toJson(toMemberResponse(member)));
             return;
         }
 
-        // if (query != null && query.startsWith("search=")) {
-        //     String keyword = query.substring(7);
-        //     List<Member> members = memberService.searchMembers(keyword);
-        //     sendResponse(exchange, 200, gson.toJson(members));
-        //     return;
-        // }
-
         List<Member> members = memberService.getAllMembers();
-        sendResponse(exchange, 200, gson.toJson(members));
-    }
 
+        List<MemberResponse> response = members
+                .stream()
+                .map(this::toMemberResponse)
+                .toList();
+
+        sendResponse(exchange, 200, gson.toJson(response));
+    }
     private void handlePost(HttpExchange exchange) throws IOException {
 
         String body = readBody(exchange);
@@ -155,14 +156,73 @@ public class MemberController implements HttpHandler {
         return body.toString();
     }
 
-    private void sendResponse(HttpExchange exchange, int statusCode, String response) throws IOException {
+    private void sendResponse(
+            HttpExchange exchange,
+            int statusCode,
+            String response
+    ) throws IOException {
 
-        byte[] responseBytes = response.getBytes(StandardCharsets.UTF_8);
-        exchange.getResponseHeaders().set("Content-Type", "application/json");
-        exchange.sendResponseHeaders(statusCode, responseBytes.length);
+        exchange.getResponseHeaders().set(
+                "Content-Type",
+                "application/json"
+        );
 
-        OutputStream outputStream = exchange.getResponseBody();
+        exchange.getResponseHeaders().set(
+                "Access-Control-Allow-Origin",
+                "*"
+        );
+
+        exchange.getResponseHeaders().set(
+                "Access-Control-Allow-Methods",
+                "GET, POST, PUT, DELETE, OPTIONS"
+        );
+
+        exchange.getResponseHeaders().set(
+                "Access-Control-Allow-Headers",
+                "Content-Type"
+        );
+
+        byte[] responseBytes =
+                response.getBytes(StandardCharsets.UTF_8);
+
+        exchange.sendResponseHeaders(
+                statusCode,
+                responseBytes.length
+        );
+
+        OutputStream outputStream =
+                exchange.getResponseBody();
         outputStream.write(responseBytes);
         outputStream.close();
+    }
+    private MemberResponse toMemberResponse(Member member) {
+        return new MemberResponse(
+                member.getId(),
+                member.getUsername(),
+                member.getEmail(),
+                member.getPhone(),
+                member.getMemberType().toString()
+        );
+    }
+    private static class MemberResponse {
+        int id;
+        String username;
+        String email;
+        String phone;
+        String memberType;
+
+        MemberResponse(
+                int id,
+                String username,
+                String email,
+                String phone,
+                String memberType
+        ) {
+            this.id = id;
+            this.username = username;
+            this.email = email;
+            this.phone = phone;
+            this.memberType = memberType;
+        }
     }
 }

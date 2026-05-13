@@ -45,7 +45,7 @@ public class MemberDAO {
 
                 MemberType type = MemberType.valueOf(rs.getString("member_type")) ;
 
-                Member member = MemberFactory.createMember(rs.getInt("id"),
+                Member member = MemberFactory.createMember(rs.getInt("user_id"),
                                                             rs.getString("username"),
                                                             rs.getString("email"),
                                                             rs.getString("phone"),
