@@ -1,18 +1,87 @@
 package com.library.controller;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.library.model.Admin;
+import com.library.model.StudentMember;
+import com.library.model.TeacherMember;
 import com.library.model.User;
 import com.library.service.AuthService;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
 import java.io.*;
+import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 
 public class AuthController implements HttpHandler {
 
     private final AuthService authService = new AuthService();
-    private final Gson gson = new Gson();
+    private final Gson gson;
+
+    public AuthController() {
+        this.gson = new GsonBuilder()
+                    .registerTypeAdapter(User.class, new JsonDeserializer<User>() {
+
+                        @Override
+                        public User deserialize(
+                                JsonElement json,
+                                Type typeOfT,
+                                JsonDeserializationContext context
+                        ) throws JsonParseException {
+
+                            JsonObject jsonObject = json.getAsJsonObject();
+
+                            
+                            if (jsonObject.has("role")) {
+
+                                String role =
+                                    jsonObject.get("role").getAsString();
+
+                                if (role.equals("ADMIN")) {
+
+                                    return context.deserialize(
+                                        json,
+                                        Admin.class
+                                    );
+                                }
+                            }
+
+                            // MEMBER TYPES
+                            if (jsonObject.has("memberType")) {
+
+                                String memberType =
+                                    jsonObject.get("memberType").getAsString();
+
+                                if (memberType.equals("STUDENT")) {
+
+                                    return context.deserialize(
+                                        json,
+                                        StudentMember.class
+                                    );
+                                }
+
+                                if (memberType.equals("TEACHER")) {
+
+                                    return context.deserialize(
+                                        json,
+                                        TeacherMember.class
+                                    );
+                                }
+                            }
+
+                            throw new JsonParseException(
+                                "Unknown user type"
+                            );
+                        }
+                    })
+                    .create();
+    }
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
