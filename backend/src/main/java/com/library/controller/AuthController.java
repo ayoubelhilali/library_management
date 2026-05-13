@@ -8,6 +8,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.library.model.Admin;
+import com.library.model.Member;
 import com.library.model.StudentMember;
 import com.library.model.TeacherMember;
 import com.library.model.User;
@@ -169,14 +170,31 @@ public class AuthController implements HttpHandler {
             //         user.getRole(),
             //         user.getMemberId() == null ? "null" : user.getMemberId().toString()
             // );
-            String response = String.format(
-                "{\"message\":\"Login successful\",\"id\":%d,\"username\":\"%s\",\"role\":\"%s\"}",
-                user.getId(),
-                user.getUsername(),
-                user.getRole()
-            );
+            // String response = String.format(
+            //     "{\"message\":\"Login successful\",\"id\":%d,\"username\":\"%s\",\"role\":\"%s\"}",
+            //     user.getId(),
+            //     user.getUsername(),
+            //     user.getRole()
+            // );
+            JsonObject json = new JsonObject();
 
-            sendResponse(exchange, 200, response);
+            json.addProperty("message", "Login successful");
+            json.addProperty("id", user.getId());
+            json.addProperty("username", user.getUsername());
+            json.addProperty("email", user.getEmail());
+            json.addProperty("phone", user.getPhone());
+            json.addProperty("role", user.getRole().toString());
+            if (user instanceof Member member) {
+                json.addProperty(
+                    "memberType",
+                    member.getMemberType().toString()
+                );
+            }
+            
+
+            sendResponse(exchange, 200, gson.toJson(json));
+
+            // sendResponse(exchange, 200, response);
 
         } catch (com.google.gson.JsonSyntaxException e) {
             sendResponse(exchange, 400, "{\"error\":\"Invalid JSON format\"}");

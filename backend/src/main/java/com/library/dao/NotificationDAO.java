@@ -292,4 +292,34 @@ public class NotificationDAO {
 
         return false;
     }
+
+
+    public boolean markAllAsRead(int memberId) {
+
+        String query = """
+            UPDATE notifications
+            SET is_read = true
+            WHERE member_id = ?
+            AND is_read = false
+        """;
+
+        try (
+            PreparedStatement stmt =
+                connection.prepareStatement(query)
+        ) {
+
+            stmt.setInt(1, memberId);
+
+            int rows = stmt.executeUpdate();
+
+            return rows > 0;
+
+        } catch (SQLException e) {
+
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
 }

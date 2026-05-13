@@ -1,106 +1,148 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
+export default function ProfilePage({ user }) {
 
-import API from "../api/api";
 
-export default function ProfilePage() {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetchProfile();
-  }, []);
-
-  const fetchProfile = async () => {
-    try {
-      // adapte endpoint selon ton backend
-      const res = await API.get("/profile");
-      setUser(res.data);
-    } catch (err) {
-      console.error("Error loading profile", err);
-
-      // fallback demo (remove later)
-      setUser({
-        username: "john_doe",
-        email: "john@example.com",
-        phone: "123456789",
-        role: "MEMBER",
-        memberType: "STUDENT",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-100">
-        <p className="text-lg text-slate-600">Loading profile...</p>
-      </div>
-    );
-  }
-
+  
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-100 to-slate-200 p-8">
-      <div className="max-w-4xl mx-auto">
+    <>
+      <h2 className="text-2xl font-bold mb-6">My Profile</h2>
 
-        {/* Header */}
-        <div className="bg-white rounded-3xl shadow-lg p-8 flex items-center justify-between">
-          <div className="flex items-center gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-            {/* Avatar */}
-            <div className="w-20 h-20 rounded-full bg-slate-900 text-white flex items-center justify-center text-2xl font-bold">
-              {user.username.charAt(0).toUpperCase()}
-            </div>
-
-            <div>
-              <h1 className="text-3xl font-bold text-slate-800">
-                {user.username}
-              </h1>
-              <p className="text-slate-500">{user.email}</p>
-            </div>
+        {/* LEFT CARD */}
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 flex flex-col items-center">
+          
+          {/* Avatar */}
+          <div className="w-24 h-24 rounded-full bg-indigo-600 flex items-center justify-center text-4xl font-bold mb-5">
+            {user.username?.charAt(0).toUpperCase()}
           </div>
 
-          <span className="px-4 py-2 rounded-full bg-emerald-100 text-emerald-700 font-semibold">
-            {user.role}
-          </span>
-        </div>
+          <h3 className="text-2xl font-bold">
+            {user.username}
+          </h3>
 
-        {/* Info Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+          <p className="text-slate-400 mt-1">
+            {user.email}
+          </p>
 
-          <div className="bg-white p-6 rounded-2xl shadow-md">
-            <h2 className="text-lg font-semibold mb-4">Personal Info</h2>
+          <div className="mt-5 flex gap-3 flex-wrap justify-center">
+            <span className="px-4 py-1 rounded-full bg-indigo-500/20 text-indigo-400 text-sm">
+              {user.role}
+            </span>
 
-            <div className="space-y-3 text-slate-600">
-              <p><span className="font-medium">Username:</span> {user.username}</p>
-              <p><span className="font-medium">Email:</span> {user.email}</p>
-              <p><span className="font-medium">Phone:</span> {user.phone}</p>
-            </div>
+            <span className="px-4 py-1 rounded-full bg-emerald-500/20 text-emerald-400 text-sm">
+              {user.memberType}
+            </span>
           </div>
 
-          <div className="bg-white p-6 rounded-2xl shadow-md">
-            <h2 className="text-lg font-semibold mb-4">Library Info</h2>
+          {/* Buttons */}
+          <div className="w-full mt-8 space-y-3">
+            <button className="w-full bg-indigo-600 hover:bg-indigo-700 transition py-3 rounded-xl font-medium">
+              Edit Profile
+            </button>
 
-            <div className="space-y-3 text-slate-600">
-              <p><span className="font-medium">Role:</span> {user.role}</p>
-              <p><span className="font-medium">Member Type:</span> {user.memberType}</p>
-            </div>
+            <button className="w-full border border-red-500 text-red-400 hover:bg-red-500 hover:text-white transition py-3 rounded-xl font-medium">
+              Delete Account
+            </button>
           </div>
         </div>
 
-        {/* Actions */}
-        <div className="mt-8 flex gap-4">
-          <button className="px-6 py-3 rounded-xl bg-slate-900 text-white hover:scale-105 transition">
-            Edit Profile
-          </button>
+        {/* RIGHT SECTION */}
+        <div className="lg:col-span-2 space-y-6">
 
-          <button className="px-6 py-3 rounded-xl border border-red-400 text-red-500 hover:bg-red-500 hover:text-white transition">
-            Delete Account
-          </button>
+          {/* Personal Information */}
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+            <h3 className="text-xl font-bold mb-5">
+              Personal Information
+            </h3>
+
+            <div className="grid md:grid-cols-2 gap-5">
+
+              <div className="bg-slate-800/60 p-4 rounded-xl">
+                <p className="text-slate-400 text-sm mb-1">
+                  Username
+                </p>
+
+                <p className="font-semibold text-lg">
+                  {user.username}
+                </p>
+              </div>
+
+              <div className="bg-slate-800/60 p-4 rounded-xl">
+                <p className="text-slate-400 text-sm mb-1">
+                  Email
+                </p>
+
+                <p className="font-semibold text-lg break-all">
+                  {user.email}
+                </p>
+              </div>
+
+              <div className="bg-slate-800/60 p-4 rounded-xl">
+                <p className="text-slate-400 text-sm mb-1">
+                  Phone
+                </p>
+
+                <p className="font-semibold text-lg">
+                  {user.phone || "Not provided"}
+                </p>
+              </div>
+
+              <div className="bg-slate-800/60 p-4 rounded-xl">
+                <p className="text-slate-400 text-sm mb-1">
+                  Member Type
+                </p>
+
+                <p className="font-semibold text-lg">
+                  {user.memberType}
+                </p>
+              </div>
+
+            </div>
+          </div>
+
+          {/* Library Stats */}
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+            <h3 className="text-xl font-bold mb-5">
+              Library Activity
+            </h3>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+
+              <div className="bg-slate-800/60 rounded-xl p-5 text-center">
+                <p className="text-3xl font-bold text-indigo-400">
+                  12
+                </p>
+
+                <p className="text-slate-400 mt-2">
+                  Borrowed Books
+                </p>
+              </div>
+
+              <div className="bg-slate-800/60 rounded-xl p-5 text-center">
+                <p className="text-3xl font-bold text-yellow-400">
+                  4
+                </p>
+
+                <p className="text-slate-400 mt-2">
+                  Reservations
+                </p>
+              </div>
+
+              <div className="bg-slate-800/60 rounded-xl p-5 text-center">
+                <p className="text-3xl font-bold text-emerald-400">
+                  8
+                </p>
+
+                <p className="text-slate-400 mt-2">
+                  Returned Books
+                </p>
+              </div>
+
+            </div>
+          </div>
+
         </div>
-
       </div>
-    </div>
+    </>
   );
 }
