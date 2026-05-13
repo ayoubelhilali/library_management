@@ -1,5 +1,40 @@
-export default function ProfilePage({ user }) {
+import { useEffect, useState } from "react";
+import API from "../api/api";
 
+export default function ProfilePage({ user }) {
+  const [borrowCount, setBorrowCount] = useState(0);
+  const [reservationCount, setReservationCount] = useState(0);
+  const [returnedCount, setReturnedCount] = useState(0);
+
+  useEffect(() => {
+    if (user?.id) {
+      fetchStats();
+    }
+  }, [user]);
+
+  const fetchStats = async () => {
+    try {
+      // Get borrowings
+      const borrowsRes = await API.get("/borrows");
+      const userBorrows = borrowsRes.data.filter(
+        (b) => b.memberID === user.id || b.memberId === user.id
+      );
+      
+      // Count current borrows (no return date)
+      const activeBorrows = userBorrows.filter(b => !b.actualReturnDate).length;
+      setBorrowCount(activeBorrows);
+
+      // Count returned books
+      const returned = userBorrows.filter(b => b.actualReturnDate).length;
+      setReturnedCount(returned);
+
+      // Get reservations
+      const reservationsRes = await API.get(`/reservations?memberId=${user.id}`);
+      setReservationCount(reservationsRes.data.length);
+    } catch (error) {
+      console.error("Error fetching stats:", error);
+    }
+  };
 
   
   return (
@@ -110,7 +145,7 @@ export default function ProfilePage({ user }) {
 
               <div className="bg-slate-800/60 rounded-xl p-5 text-center">
                 <p className="text-3xl font-bold text-indigo-400">
-                  12
+                  {borrowCount}
                 </p>
 
                 <p className="text-slate-400 mt-2">
@@ -120,7 +155,7 @@ export default function ProfilePage({ user }) {
 
               <div className="bg-slate-800/60 rounded-xl p-5 text-center">
                 <p className="text-3xl font-bold text-yellow-400">
-                  4
+                  {reservationCount}
                 </p>
 
                 <p className="text-slate-400 mt-2">
@@ -130,7 +165,7 @@ export default function ProfilePage({ user }) {
 
               <div className="bg-slate-800/60 rounded-xl p-5 text-center">
                 <p className="text-3xl font-bold text-emerald-400">
-                  8
+                  {returnedCount}
                 </p>
 
                 <p className="text-slate-400 mt-2">

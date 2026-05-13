@@ -24,6 +24,7 @@ function Dashboard() {
   const [borrows, setBorrows] = useState([]);
   const [reservations, setReservations] = useState([]);
   const [members, setMembers] = useState([]);
+  const [notifications, setNotifications] = useState([]);
   const [activeTab, setActiveTab] = useState("overview");
 
   useEffect(() => {
@@ -41,6 +42,13 @@ function Dashboard() {
 
   const loadData = async (currentUser) => {
     try {
+      // Validate user has ID
+      if (!currentUser?.id) {
+        console.error("User ID is missing:", currentUser);
+        navigate("/login");
+        return;
+      }
+
       const booksRes = await API.get("/books");
       const borrowsRes = await API.get("/borrows");
 
@@ -55,8 +63,16 @@ function Dashboard() {
           `/reservations?memberId=${currentUser.id}`,
         );
 
+        const notificationsRes = await API.get(
+          `/notifications?memberId=${currentUser.id}`,
+        ).catch(err => {
+          console.error("Failed to fetch notifications:", err.response?.status);
+          return { data: [] };
+        });
+
         setBorrows(userBorrows);
         setReservations(reservationsRes.data);
+        setNotifications(notificationsRes.data);
       } else {
         const reservationsRes = await API.get("/reservations");
         const membersRes = await API.get("/members");
@@ -67,8 +83,34 @@ function Dashboard() {
       }
     } catch (err) {
       console.error("Loading dashboard failed:", err);
+      if (err.response?.status === 400) {
+        console.error(currentUser);
+      }
     }
   };
+
+  const loadNotifications = async () => {
+    if (user?.id) {
+      try {
+        const notificationsRes = await API.get(
+          `/notifications?memberId=${user.id}`,
+        );
+        setNotifications(notificationsRes.data || []);
+      } catch (err) {
+        console.error("Error loading notifications:", err.response?.status || err.message);
+        setNotifications([]);
+      }
+    }
+  };
+
+  // Auto-refresh notifications every 5 seconds
+  useEffect(() => {
+    if (user?.id) {
+      loadNotifications();
+      const interval = setInterval(loadNotifications, 5000);
+      return () => clearInterval(interval);
+    }
+  }, [user]);
 
   const logout = () => {
     localStorage.removeItem("user");
@@ -90,6 +132,7 @@ function Dashboard() {
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         logout={logout}
+        unreadCount={notifications.filter(n => !n.read).length}
       />
 
       <main className="md:ml-72 p-8 min-h-screen">
@@ -110,6 +153,7 @@ function Dashboard() {
             borrows={borrows}
             reservations={reservations}
             reload={() => loadData(user)}
+            refreshNotifications={loadNotifications}
             setActiveTab={setActiveTab}
           />
         )}
@@ -126,6 +170,7 @@ function Dashboard() {
               books={books}
               borrows={borrows}
               reload={() => loadData(user)}
+              refreshNotifications={loadNotifications}
             />
           ))}
 
@@ -137,11 +182,19 @@ function Dashboard() {
               members={members}
             />
           ) : (
-            <ReservationsPage books={books} reservations={reservations} />
+            <ReservationsPage
+              books={books}
+              reservations={reservations}
+              refreshNotifications={loadNotifications}
+            />
           ))}
 
-        {/* {activeTab === "notifications" && <NotificationsPage user={user} />} */}
-        {activeTab === "notifications" && <NotificationPage user={user} />}
+        {activeTab === "notifications" && (
+          <NotificationPage 
+            user={user}
+            onNotificationsMarkedRead={() => loadNotifications()}
+          />
+        )}
 
         {/* {activeTab === "profile" && <ProfilePage user={user} />} */}
         {activeTab === "profile" && <ProfilePage user={user} />}

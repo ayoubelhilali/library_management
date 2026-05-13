@@ -30,14 +30,14 @@ function ReservationList({ reservations, books }) {
             </tr>
           </thead>
           <tbody>
-            {reservations.map((reservation) => {
+            {reservations.map((reservation, index) => {
               const book = books.find(
                 (b) => b.id === (reservation.bookID || reservation.bookId),
               );
 
               return (
                 <tr
-                  key={reservation.id}
+                  key={reservation.id || `reservation-${index}`}
                   className="hover:bg-slate-800/20 transition-colors"
                 >
                   <td className="px-6 py-4 border-b border-slate-800">

@@ -10,12 +10,12 @@ function Notifications({ activeBorrows, books }) {
 
   return (
     <div className="space-y-4">
-      {activeBorrows.map((borrow) => {
+      {activeBorrows.map((borrow, index) => {
         const bookId = borrow.bookID || borrow.bookId;
 
         return (
           <div
-            key={borrow.id}
+            key={borrow.id || `borrow-notification-${index}`}
             className="bg-slate-900 border border-slate-800 p-5 rounded-2xl"
           >
             <h3 className="font-semibold text-yellow-400">Return reminder</h3>
