@@ -9,8 +9,8 @@ public class BorrowBookCommand implements Command {
     private final int bookId;
     private final int memberId;
 
-    public BorrowBookCommand(LibraryFacade borrowService, int bookId, int memberId) {
-        this.libraryFacade = borrowService;
+    public BorrowBookCommand(LibraryFacade libraryFacade, int bookId, int memberId) {
+        this.libraryFacade = libraryFacade;
         this.bookId = bookId;
         this.memberId = memberId;
     }

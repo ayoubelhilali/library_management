@@ -46,7 +46,6 @@ public class EmailService {
             System.err.println("Recipients list is empty");
             return false;
         }
-
         System.out.println("Sending bulk email to " + recipients.length + " recipients...");
 
         for (String recipient : recipients) {

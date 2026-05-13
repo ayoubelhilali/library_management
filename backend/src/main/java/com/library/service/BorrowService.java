@@ -3,23 +3,24 @@ package com.library.service;
 import java.time.LocalDate;
 import java.util.List;
 
-import com.library.dao.BookDAO;
-import com.library.dao.BorrowDAO;
-import com.library.dao.NotificationDAO;
-import com.library.dao.ReservationDAO;
+import com.library.dao.*;
 import com.library.model.Book;
 import com.library.model.Borrow;
+import com.library.model.Member;
 import com.library.model.Reservation;
 import com.library.model.enums.BookStatus;
 import com.library.patterns.state.BookState;
 import com.library.patterns.state.BookStateFactory;
+import com.library.patterns.strategy.*;
 
 public class BorrowService {
     private final BorrowDAO borrowDAO;
     private final BookDAO bookDAO;
     private final ReservationDAO reservationDAO;
+    private final MemberDAO memberDAO;
 
     public BorrowService() {
+        this.memberDAO = new  MemberDAO();
         this.reservationDAO = new  ReservationDAO();
         this.borrowDAO = new BorrowDAO();
         this.bookDAO = new BookDAO();
@@ -48,33 +49,64 @@ public class BorrowService {
         if (bookId <= 0 || memberId <= 0) {
             throw new IllegalArgumentException("Invalid book or member id");
         }
+
         Book book = bookDAO.getBookById(bookId);
+
         if (book == null) {
             throw new IllegalArgumentException("Book not found");
         }
 
-        Borrow activeBorrow = borrowDAO.getActiveBorrowByBookId(bookId);
+        Member member = memberDAO.getMemberById(memberId);
+
+        if (member == null) {
+            throw new IllegalArgumentException("Member not found");
+        }
+
+        int activeBorrows =
+                borrowDAO.countActiveBorrowsByMemberId(memberId);
+
+        String memberType = member.getMemberType().toString();
+        int maxBorrows;
+        int borrowDays;
+        if (memberType.equals("STUDENT")) {
+            maxBorrows = 3;
+            borrowDays = 14;
+        } else if (memberType.equals("TEACHER")) {
+            maxBorrows = 5;
+            borrowDays = 30;
+        } else {
+            throw new IllegalArgumentException("Invalid member type");
+        }
+        if (activeBorrows >= maxBorrows) {
+            throw new IllegalArgumentException(
+                    memberType + " borrow limit reached"
+            );
+        }
+        Borrow activeBorrow =
+                borrowDAO.getActiveBorrowByBookId(bookId);
 
         if (activeBorrow != null) {
             throw new IllegalArgumentException("Book is already borrowed");
         }
+        BookState state =
+                BookStateFactory.getState(book.getStatus());
 
-        BookState state = BookStateFactory.getState(book.getStatus());
         state.borrow(book);
 
         Borrow borrow = new Borrow();
+
         borrow.setBookID(bookId);
         borrow.setMemberID(memberId);
         borrow.setBorrowDate(LocalDate.now());
-        borrow.setExpectedReturnDate(LocalDate.now().plusDays(14));
+        borrow.setExpectedReturnDate(
+                LocalDate.now().plusDays(borrowDays)
+        );
         borrow.setActualReturnDate(null);
-
-        boolean created = borrowDAO.createBorrow(borrow);
-
+        boolean created =
+                borrowDAO.createBorrow(borrow);
         if (created) {
             bookDAO.updateBook(book);
         }
-
         return created;
     }
 
@@ -99,6 +131,48 @@ public class BorrowService {
         if (!returned) {
             return false;
         }
+        Member member =
+                memberDAO.getMemberById(
+                        borrow.getMemberID()
+                );
+
+        PenaltyStrategy strategy;
+
+        if (
+                member.getMemberType().toString()
+                        .equals("STUDENT")
+        ) {
+
+            strategy = new StudentPenaltyStrategy();
+
+        } else if(
+                member.getMemberType().toString()
+                        .equals("TEACHER")
+        ){
+
+            strategy = new TeacherPenaltyStrategy();
+        }else {
+            strategy =new DefaultPenaltyStrategy();
+        }
+
+        PenaltyContext penaltyContext =
+                new PenaltyContext(strategy);
+
+        borrow.setActualReturnDate(LocalDate.now());
+
+        double penalty =
+                penaltyContext.calculatePenalty(borrow);
+
+        System.out.println(
+                "Penalty for member "
+                        + member.getUsername()
+                        + " = "
+                        + penalty
+        );
+
+        System.out.println(
+                penaltyContext.getStrategyDescription()
+        );
 
         int bookId = borrow.getBookID();
 

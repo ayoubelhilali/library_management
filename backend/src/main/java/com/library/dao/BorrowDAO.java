@@ -91,6 +91,36 @@ public class BorrowDAO {
         }
         return null;
     }
+
+    public int countActiveBorrowsByMemberId(int memberId) {
+
+        String query = """
+        SELECT COUNT(*)
+        FROM borrows
+        WHERE member_id = ?
+        AND actual_return_date IS NULL
+    """;
+
+        try (
+                PreparedStatement stmt =
+                        connection.prepareStatement(query)
+        ) {
+
+            stmt.setInt(1, memberId);
+
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return 0;
+    }
+
     public Borrow getActiveBorrowByBookId(int bookId){
         String query= """
                     SELECT * from borrows

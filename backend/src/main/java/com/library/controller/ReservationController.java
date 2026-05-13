@@ -4,6 +4,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.library.model.Reservation;
 import com.library.model.enums.ReservationStatus;
+import com.library.patterns.command.ReserveBookCommand;
+import com.library.patterns.facade.LibraryFacade;
 import com.library.service.ReservationService;
 import com.library.utils.LocalDateAdapter;
 import com.sun.net.httpserver.HttpExchange;
@@ -94,8 +96,15 @@ public class ReservationController implements HttpHandler {
         String body = readBody(exchange);
         Reservation reservation = gson.fromJson(body, Reservation.class);
 
-        boolean created = reservationService.addReservation(reservation);
+        LibraryFacade libraryFacade = new LibraryFacade();
 
+        ReserveBookCommand command =
+                new ReserveBookCommand(
+                        libraryFacade,
+                        reservation
+                );
+
+        boolean created = command.execute();
         if (created) {
             sendResponse(exchange, 201, "{\"message\":\"Reservation created successfully\"}");
         } else {
