@@ -11,7 +11,15 @@ public class Reservation {
     private int memberId ;
     private LocalDate reservationDate ;
     private ReservationStatus status ;
+    private int queuePosition;
 
+    public int getQueuePosition() {
+        return queuePosition;
+    }
+
+    public void setQueuePosition(int queuePosition) {
+        this.queuePosition = queuePosition;
+    }
 
     public Reservation() {
     }

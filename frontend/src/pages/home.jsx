@@ -1,20 +1,21 @@
 import { Link } from "react-router-dom";
+import { BookOpen, RefreshCw, ShieldCheck } from "lucide-react";
 import FeatureItem from "../components/FeatureItem";
 
 function Home() {
     const libraryFeatures = [
         {
-            icon: "📖",
+            icon: <BookOpen className="w-12 h-12 text-indigo-400" />,
             title: "Catalog",
             description: "Effortless book tracking and organization."
         },
         {
-            icon: "🔄",
+            icon: <RefreshCw className="w-12 h-12 text-indigo-400" />,
             title: "Circulation",
             description: "Streamlined borrow and return workflows."
         },
         {
-            icon: "🛡️",
+            icon: <ShieldCheck className="w-12 h-12 text-indigo-400" />,
             title: "Security",
             description: "Role-based access for admins and members."
         }

@@ -1,10 +1,26 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import API from "../api/api";
+
+import Sidebar from "../components/dashboard/SideBar";
+
+import OverviewPage from "./overviewPage";
+import BrowseBooksPage from "./member/browseBooksPage";
+import BorrowedBooksPage from "./member/borrowedBooksPage";
+import ReservationsPage from "./member/reservationsPage";
+import NotificationsPage from "./notificationsPage";
+import ProfilePage from "./profilePage";
+import AdminBooksPage from "./admin/adminBooksPage";
+import AdminMembersPage from "./admin/adminMembersPage";
 
 function Dashboard() {
   const navigate = useNavigate();
 
   const [user, setUser] = useState(null);
+  const [books, setBooks] = useState([]);
+  const [borrows, setBorrows] = useState([]);
+  const [reservations, setReservations] = useState([]);
+  const [activeTab, setActiveTab] = useState("overview");
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -14,52 +30,102 @@ function Dashboard() {
       return;
     }
 
-    setUser(JSON.parse(storedUser));
+    const parsedUser = JSON.parse(storedUser);
+    setUser(parsedUser);
+    loadData(parsedUser);
   }, []);
 
+  const loadData = async (currentUser) => {
+    try {
+      const booksRes = await API.get("/books");
+      const borrowsRes = await API.get("/borrows");
+
+      setBooks(booksRes.data);
+
+      if (currentUser.role === "MEMBER") {
+        const userBorrows = borrowsRes.data.filter(
+          (b) => b.memberID === currentUser.id || b.memberId === currentUser.id,
+        );
+
+        const reservationsRes = await API.get(
+          `/reservations?memberId=${currentUser.id}`,
+        );
+
+        setBorrows(userBorrows);
+        setReservations(reservationsRes.data);
+      } else {
+        setBorrows(borrowsRes.data);
+      }
+    } catch (err) {
+      console.error("Loading dashboard failed:", err);
+    }
+  };
+
+  const logout = () => {
+    localStorage.removeItem("user");
+    navigate("/login");
+  };
+
   if (!user) {
-    return <h1 className="text-white">Loading...</h1>;
+    return (
+      <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center">
+        Loading...
+      </div>
+    );
   }
 
   return (
-    <div className="min-h-screen bg-slate-900 text-white p-8">
-      <div className="flex justify-between items-center mb-8">
-        <div>
-          <h1 className="text-4xl font-bold">Welcome, {user.username}</h1>
+    <div className="min-h-screen bg-slate-950 text-white">
+      <Sidebar
+        user={user}
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        logout={logout}
+      />
 
+      <main className="md:ml-72 p-8 min-h-screen">
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold">Welcome, {user.username}</h1>
           <p className="text-slate-400 mt-2">Role: {user.role}</p>
         </div>
 
-        <button
-          onClick={() => {
-            localStorage.removeItem("user");
-            navigate("/login");
-          }}
-          className="bg-red-600 hover:bg-red-700 px-5 py-2 rounded-lg"
-        >
-          Logout
-        </button>
-      </div>
+        {activeTab === "overview" && (
+          <OverviewPage books={books} borrows={borrows} user={user} />
+        )}
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-slate-800 p-6 rounded-2xl shadow-lg">
-          <h2 className="text-2xl font-semibold mb-2">📚 Books</h2>
+        {activeTab === "browse" && (
+          <BrowseBooksPage
+            user={user}
+            books={books}
+            borrows={borrows}
+            reservations={reservations}
+            reload={() => loadData(user)}
+            setActiveTab={setActiveTab}
+          />
+        )}
 
-          <p className="text-slate-400">Manage and explore library books.</p>
-        </div>
+        {activeTab === "borrows" && (
+          <BorrowedBooksPage
+            books={books}
+            borrows={borrows}
+            reload={() => loadData(user)}
+          />
+        )}
 
-        <div className="bg-slate-800 p-6 rounded-2xl shadow-lg">
-          <h2 className="text-2xl font-semibold mb-2">🔄 Borrows</h2>
+        {activeTab === "reservations" && (
+          <ReservationsPage books={books} reservations={reservations} />
+        )}
 
-          <p className="text-slate-400">Track borrowed and returned books.</p>
-        </div>
+        {activeTab === "notifications" && <NotificationsPage user={user} />}
 
-        <div className="bg-slate-800 p-6 rounded-2xl shadow-lg">
-          <h2 className="text-2xl font-semibold mb-2">👤 Profile</h2>
+        {activeTab === "profile" && <ProfilePage user={user} />}
 
-          <p className="text-slate-400">View your account information.</p>
-        </div>
-      </div>
+        {activeTab === "adminBooks" && (
+          <AdminBooksPage books={books} reload={() => loadData(user)} />
+        )}
+
+        {activeTab === "adminMembers" && <AdminMembersPage />}
+      </main>
     </div>
   );
 }

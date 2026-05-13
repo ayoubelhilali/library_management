@@ -6,7 +6,6 @@ function Register() {
   const navigate = useNavigate();
 
  const [credentials, setCredentials] = useState({
-   fullName: "",
    email: "",
    phone: "",
    username: "",
@@ -82,16 +81,6 @@ function Register() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-5">
-            <input
-              type="text"
-              name="fullName"
-              value={credentials.fullName}
-              onChange={handleChange}
-              className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-white"
-              placeholder="Full name"
-              required
-            />
-
             <input
               type="email"
               name="email"

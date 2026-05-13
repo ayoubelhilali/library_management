@@ -1,16 +1,15 @@
 package com.library.service;
 
+import java.time.LocalDate;
+import java.util.List;
+
 import com.library.dao.BookDAO;
 import com.library.dao.MemberDAO;
 import com.library.dao.ReservationDAO;
 import com.library.model.Book;
 import com.library.model.Member;
 import com.library.model.Reservation;
-import com.library.model.enums.BookStatus;
 import com.library.model.enums.ReservationStatus;
-
-import java.time.LocalDate;
-import java.util.List;
 
 public class ReservationService {
 
@@ -41,36 +40,51 @@ public class ReservationService {
 
         validateReservation(reservation);
 
-        // Check if book exists
         Book book = bookDAO.getBookById(reservation.getBookId());
 
         if (book == null) {
             throw new IllegalArgumentException("Book not found");
         }
 
-        // Check if member exists
         Member member = memberDAO.getMemberById(reservation.getMemberId());
 
         if (member == null) {
             throw new IllegalArgumentException("Member not found");
         }
 
-        // Check if book is available
-        // if (!"AVAILABLE".equalsIgnoreCase(book.getStatus())) {
-        //     throw new IllegalArgumentException("Book is not available for reservation");
-        // }
-        if ( BookStatus.AVAILABLE != book.getStatus()) {
-            throw new IllegalArgumentException("Book is not available for reservation");
+        com.library.dao.BorrowDAO borrowDAO = new com.library.dao.BorrowDAO();
+        com.library.model.Borrow activeBorrow = borrowDAO.getActiveBorrowByBookId(reservation.getBookId());
+        
+        if (activeBorrow != null && activeBorrow.getMemberID() == reservation.getMemberId()) {
+            throw new IllegalArgumentException("You are currently borrowing this book. You cannot reserve it again.");
         }
 
-        // Set default status and date
-        if (reservation.getStatus() == null) {
-            reservation.setStatus(ReservationStatus.PENDING);
+        if ("AVAILABLE".equalsIgnoreCase(book.getStatus().toString())) {
+            throw new IllegalArgumentException(
+                    "Book is available, you can borrow it directly"
+            );
         }
 
-        if (reservation.getReservationDate() == null) {
-            reservation.setReservationDate(LocalDate.now());
+        Reservation existingReservation =
+                reservationDAO.getPendingReservation(
+                        reservation.getBookId(),
+                        reservation.getMemberId()
+                );
+
+        if (existingReservation != null) {
+            throw new IllegalArgumentException(
+                    "You already reserved this book"
+            );
         }
+
+        int queuePosition =
+                reservationDAO.getNextQueuePosition(
+                        reservation.getBookId()
+                );
+
+        reservation.setQueuePosition(queuePosition);
+        reservation.setStatus(ReservationStatus.PENDING);
+        reservation.setReservationDate(LocalDate.now());
 
         return reservationDAO.addReservation(reservation);
     }

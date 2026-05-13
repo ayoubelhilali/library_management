@@ -26,7 +26,10 @@ public class ReservationController implements HttpHandler {
 
         try {
             String method = exchange.getRequestMethod();
-
+            if ("OPTIONS".equalsIgnoreCase(method)) {
+                sendResponse(exchange, 204, "");
+                return;
+            }
             switch (method) {
                 case "GET" -> handleGet(exchange);
                 case "POST" -> handlePost(exchange);
@@ -134,7 +137,6 @@ public class ReservationController implements HttpHandler {
     }
 
     private String readBody(HttpExchange exchange) throws IOException {
-
         InputStream inputStream = exchange.getRequestBody();
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
         StringBuilder body = new StringBuilder();
@@ -150,6 +152,9 @@ public class ReservationController implements HttpHandler {
     private void sendResponse(HttpExchange exchange, int statusCode, String response) throws IOException {
 
         byte[] responseBytes = response.getBytes(StandardCharsets.UTF_8);
+        exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*");
+        exchange.getResponseHeaders().set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+        exchange.getResponseHeaders().set("Access-Control-Allow-Headers", "Content-Type");
         exchange.getResponseHeaders().set("Content-Type", "application/json");
         exchange.sendResponseHeaders(statusCode, responseBytes.length);
 

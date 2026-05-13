@@ -1,21 +1,26 @@
 package com.library.service;
 
-import com.library.dao.BookDAO;
-import com.library.dao.BorrowDAO;
-import com.library.model.Book;
-import com.library.model.Borrow;
-import com.library.patterns.command.Command;
-import com.library.patterns.state.BookState;
-import com.library.patterns.state.BookStateFactory;
-
 import java.time.LocalDate;
 import java.util.List;
+
+import com.library.dao.BookDAO;
+import com.library.dao.BorrowDAO;
+import com.library.dao.NotificationDAO;
+import com.library.dao.ReservationDAO;
+import com.library.model.Book;
+import com.library.model.Borrow;
+import com.library.model.Reservation;
+import com.library.model.enums.BookStatus;
+import com.library.patterns.state.BookState;
+import com.library.patterns.state.BookStateFactory;
 
 public class BorrowService {
     private final BorrowDAO borrowDAO;
     private final BookDAO bookDAO;
+    private final ReservationDAO reservationDAO;
 
     public BorrowService() {
+        this.reservationDAO = new  ReservationDAO();
         this.borrowDAO = new BorrowDAO();
         this.bookDAO = new BookDAO();
     }
@@ -88,13 +93,59 @@ public class BorrowService {
         if (borrow.getActualReturnDate() != null) {
             throw new IllegalArgumentException("Book already returned");
         }
+
         boolean returned = borrowDAO.returnBook(borrowId, LocalDate.now());
-        if (returned) {
-            Book book = bookDAO.getBookById(borrow.getBookID());
-            BookState state = BookStateFactory.getState(book.getStatus());
-            state.returnBook(book);
-            bookDAO.updateBook(book);
+
+        if (!returned) {
+            return false;
         }
-        return returned;
+
+        int bookId = borrow.getBookID();
+
+        Book book = bookDAO.getBookById(bookId);
+
+        Reservation firstReservation =
+                reservationDAO.getFirstPendingReservationByBookId(bookId);
+
+        if (firstReservation != null) {
+
+            Borrow newBorrow = new Borrow();
+
+            newBorrow.setBookID(bookId);
+            newBorrow.setMemberID(firstReservation.getMemberId());
+            newBorrow.setBorrowDate(LocalDate.now());
+            newBorrow.setExpectedReturnDate(LocalDate.now().plusDays(14));
+            newBorrow.setActualReturnDate(null);
+
+            boolean newBorrowCreated = borrowDAO.createBorrow(newBorrow);
+
+            if (!newBorrowCreated) {
+                throw new IllegalArgumentException(
+                        "Book returned, but failed to assign it to next reservation"
+                );
+            }
+
+            int removedPosition = firstReservation.getQueuePosition();
+
+            reservationDAO.deleteReservation(
+                    firstReservation.getReservationId()
+            );
+
+            reservationDAO.decrementQueuePositions(
+                    bookId,
+                    removedPosition
+            );
+
+            book.setStatus(BookStatus.valueOf("BORROWED"));
+            bookDAO.updateBook(book);
+
+            return true;
+        }
+
+        BookState state = BookStateFactory.getState(book.getStatus());
+        state.returnBook(book);
+        bookDAO.updateBook(book);
+
+        return true;
     }
 }

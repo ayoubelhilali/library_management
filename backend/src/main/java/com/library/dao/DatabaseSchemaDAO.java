@@ -141,6 +141,7 @@ public class DatabaseSchemaDAO {
                 member_id INT NOT NULL,
                 reservation_date DATE NOT NULL,
                 status ENUM('PENDING', 'COMPLETED', 'CANCELLED') NOT NULL,
+                queue_position INT DEFAULT 1,
                 FOREIGN KEY (book_id) REFERENCES books(id),
                 FOREIGN KEY (member_id) REFERENCES members(user_id)
             )
