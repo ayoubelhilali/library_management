@@ -12,6 +12,8 @@ import NotificationsPage from "./notificationsPage";
 import ProfilePage from "./profilePage";
 import AdminBooksPage from "./admin/adminBooksPage";
 import AdminMembersPage from "./admin/adminMembersPage";
+import AdminBorrowsPage from "./admin/adminBorrowsPage";
+import AdminReservationsPage from "./admin/adminReservationsPage";
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -20,6 +22,7 @@ function Dashboard() {
   const [books, setBooks] = useState([]);
   const [borrows, setBorrows] = useState([]);
   const [reservations, setReservations] = useState([]);
+  const [members, setMembers] = useState([]);
   const [activeTab, setActiveTab] = useState("overview");
 
   useEffect(() => {
@@ -54,7 +57,12 @@ function Dashboard() {
         setBorrows(userBorrows);
         setReservations(reservationsRes.data);
       } else {
+        const reservationsRes = await API.get("/reservations");
+        const membersRes = await API.get("/members");
+
         setBorrows(borrowsRes.data);
+        setReservations(reservationsRes.data);
+        setMembers(membersRes.data);
       }
     } catch (err) {
       console.error("Loading dashboard failed:", err);
@@ -84,13 +92,14 @@ function Dashboard() {
       />
 
       <main className="md:ml-72 p-8 min-h-screen">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold">Welcome, {user.username}</h1>
-          <p className="text-slate-400 mt-2">Role: {user.role}</p>
-        </div>
-
         {activeTab === "overview" && (
-          <OverviewPage books={books} borrows={borrows} user={user} />
+          <OverviewPage
+            books={books}
+            borrows={borrows}
+            reservations={reservations}
+            members={members}
+            user={user}
+          />
         )}
 
         {activeTab === "browse" && (
@@ -104,17 +113,31 @@ function Dashboard() {
           />
         )}
 
-        {activeTab === "borrows" && (
-          <BorrowedBooksPage
-            books={books}
-            borrows={borrows}
-            reload={() => loadData(user)}
-          />
-        )}
+        {activeTab === "borrows" &&
+          (user.role === "ADMIN" ? (
+            <AdminBorrowsPage
+              books={books}
+              borrows={borrows}
+              members={members}
+            />
+          ) : (
+            <BorrowedBooksPage
+              books={books}
+              borrows={borrows}
+              reload={() => loadData(user)}
+            />
+          ))}
 
-        {activeTab === "reservations" && (
-          <ReservationsPage books={books} reservations={reservations} />
-        )}
+        {activeTab === "reservations" &&
+          (user.role === "ADMIN" ? (
+            <AdminReservationsPage
+              books={books}
+              reservations={reservations}
+              members={members}
+            />
+          ) : (
+            <ReservationsPage books={books} reservations={reservations} />
+          ))}
 
         {activeTab === "notifications" && <NotificationsPage user={user} />}
 
