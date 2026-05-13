@@ -35,6 +35,13 @@ public class NotificationController implements HttpHandler {
             String method =
                     exchange.getRequestMethod();
 
+            if ("OPTIONS".equalsIgnoreCase(exchange.getRequestMethod())) {
+
+                sendResponse(exchange, 204, "");
+
+                return;
+            }
+
             switch (method) {
 
                 case "GET" -> handleGet(exchange);
@@ -318,22 +325,64 @@ public class NotificationController implements HttpHandler {
         return body.toString();
     }
 
+    // private void sendResponse(
+    //         HttpExchange exchange,
+    //         int statusCode,
+    //         String response
+    // ) throws IOException {
+
+    //     byte[] responseBytes =
+    //             response.getBytes(
+    //                     StandardCharsets.UTF_8
+    //             );
+
+    //     exchange.getResponseHeaders()
+    //             .set(
+    //                     "Content-Type",
+    //                     "application/json"
+    //             );
+
+    //     exchange.sendResponseHeaders(
+    //             statusCode,
+    //             responseBytes.length
+    //     );
+
+    //     OutputStream outputStream =
+    //             exchange.getResponseBody();
+
+    //     outputStream.write(responseBytes);
+
+    //     outputStream.close();
+    // }
+
+
     private void sendResponse(
             HttpExchange exchange,
             int statusCode,
             String response
     ) throws IOException {
 
-        byte[] responseBytes =
-                response.getBytes(
-                        StandardCharsets.UTF_8
+        exchange.getResponseHeaders()
+                .set("Content-Type", "application/json");
+
+        // CORS
+        exchange.getResponseHeaders()
+                .set("Access-Control-Allow-Origin", "*");
+
+        exchange.getResponseHeaders()
+                .set(
+                        "Access-Control-Allow-Methods",
+                        "GET, POST, PUT, DELETE, OPTIONS"
                 );
 
         exchange.getResponseHeaders()
                 .set(
-                        "Content-Type",
-                        "application/json"
+                        "Access-Control-Allow-Headers",
+                        "Content-Type"
                 );
+
+        byte[] responseBytes =
+                response.getBytes(StandardCharsets.UTF_8);
 
         exchange.sendResponseHeaders(
                 statusCode,
@@ -347,4 +396,8 @@ public class NotificationController implements HttpHandler {
 
         outputStream.close();
     }
+
+
+
+
 }
