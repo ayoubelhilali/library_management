@@ -8,12 +8,13 @@ import OverviewPage from "./overviewPage";
 import BrowseBooksPage from "./member/browseBooksPage";
 import BorrowedBooksPage from "./member/borrowedBooksPage";
 import ReservationsPage from "./member/reservationsPage";
-import NotificationsPage from "./notificationsPage";
-import ProfilePage from "./profilePage";
 import AdminBooksPage from "./admin/adminBooksPage";
 import AdminMembersPage from "./admin/adminMembersPage";
 import AdminBorrowsPage from "./admin/adminBorrowsPage";
 import AdminReservationsPage from "./admin/adminReservationsPage";
+import ProfilePage from "../components/profile";
+import NotificationPage from "../components/notifications";
+
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -139,8 +140,10 @@ function Dashboard() {
             <ReservationsPage books={books} reservations={reservations} />
           ))}
 
-        {activeTab === "notifications" && <NotificationsPage user={user} />}
+        {/* {activeTab === "notifications" && <NotificationsPage user={user} />} */}
+        {activeTab === "notifications" && <NotificationPage user={user} />}
 
+        {/* {activeTab === "profile" && <ProfilePage user={user} />} */}
         {activeTab === "profile" && <ProfilePage user={user} />}
 
         {activeTab === "adminBooks" && (

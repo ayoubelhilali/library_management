@@ -4,6 +4,7 @@ import com.library.controller.AuthController;
 import com.library.controller.BookController;
 import com.library.controller.BorrowController;
 import com.library.controller.MemberController;
+import com.library.controller.NotificationController;
 import com.library.controller.ReservationController;
 import com.sun.net.httpserver.HttpServer;
 
@@ -27,6 +28,8 @@ public class LibraryServer {
 
         server.createContext("/api/members", new MemberController());
         server.createContext("/api/reservations",new ReservationController()) ;
+
+        server.createContext("/api/notifications",new NotificationController()) ;
 
         server.setExecutor(null);
         server.start();

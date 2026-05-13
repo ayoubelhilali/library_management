@@ -23,7 +23,7 @@ public class NotificationObserver implements Observer {
 
     public void notifyMember() {
         Notification notification = new Notification() ;
-        notification.setMember(member) ;
+        notification.setMemberId(member.getId()) ;
         notification.setMessage(subject.getNotificationMessage()) ;
         notification.setSendDate(LocalDate.now()) ;
         notification.setRead(false) ;

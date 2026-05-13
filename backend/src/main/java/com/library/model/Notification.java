@@ -5,7 +5,7 @@ import java.time.LocalDate;
 public class Notification {
 
     private int notificationId ;
-    private Member member ;
+    private int memberId ;
     private String message ;
     private LocalDate sendDate ;
     private boolean read ;
@@ -13,9 +13,9 @@ public class Notification {
     public Notification() {
     }
 
-    public Notification(int notificationId, Member member, String message, LocalDate sendDate, boolean read) {
+    public Notification(int notificationId, int memberId, String message, LocalDate sendDate, boolean read) {
         this.notificationId = notificationId ;
-        this.member = member ;
+        this.memberId = memberId ;
         this.message = message ;
         this.sendDate = sendDate ;
         this.read = read ;
@@ -26,8 +26,8 @@ public class Notification {
         return notificationId ;
     }
 
-    public Member getMember() {
-        return member ;
+    public int getMemberId() {
+        return memberId ;
     }
 
     public String getMessage() {
@@ -47,8 +47,8 @@ public class Notification {
         this.notificationId = notificationId ;
     }
 
-    public void setMember(Member member) {
-        this.member = member ;
+    public void setMemberId(int memberId) {
+        this.memberId = memberId ;
     }
 
     public void setMessage(String message) {
@@ -67,7 +67,7 @@ public class Notification {
     public String toString() {
         return "Notification{" +
                 "notificationId=" + notificationId +
-                ", member=" + member +
+                ", memberId=" + memberId +
                 ", message='" + message + '\'' +
                 ", sendDate=" + sendDate +
                 ", read=" + read +

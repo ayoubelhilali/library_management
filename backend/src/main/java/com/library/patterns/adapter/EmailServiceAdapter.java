@@ -1,5 +1,6 @@
 package com.library.patterns.adapter;
 
+import com.library.dao.UserDAO;
 import com.library.model.Notification;
 
 /**
@@ -10,10 +11,12 @@ public class EmailServiceAdapter implements NotificationChannel {
 
     private EmailService emailService;
     private boolean isAvailable;
+    private UserDAO userDAO ; 
 
     public EmailServiceAdapter() {
         this.emailService = new EmailService();
         this.isAvailable = true;
+        this.userDAO =  new UserDAO() ;
     }
 
     /**
@@ -27,12 +30,14 @@ public class EmailServiceAdapter implements NotificationChannel {
             return false;
         }
 
-        if (notification.getMember() == null) {
+        if (notification.getMemberId() == 0) {
             System.err.println("Member information is missing");
             return false;
         }
 
-        String recipient = notification.getMember().getEmail();
+        
+
+        String recipient = userDAO.findById(notification.getMemberId()).getEmail();
         String subject = "Notification from Library Management System";
         String body = buildEmailBody(notification);
 
@@ -46,7 +51,7 @@ public class EmailServiceAdapter implements NotificationChannel {
     private String buildEmailBody(Notification notification) {
         StringBuilder body = new StringBuilder();
 
-        body.append("Dear ").append(notification.getMember().getUsername()).append(",\n\n");
+        body.append("Dear ").append(userDAO.findById(notification.getMemberId()).getUsername()).append(",\n\n");
         body.append("You have a new notification:\n\n");
         body.append(notification.getMessage()).append("\n\n");
         body.append("Sent on: ").append(notification.getSendDate()).append("\n\n");
